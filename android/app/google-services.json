@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "184530457213",
+    "firebase_url": "https://singleclinic2-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "singleclinic2",
+    "storage_bucket": "singleclinic2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:184530457213:android:bbcc2b74f1c0d9356c9714",
+        "android_client_info": {
+          "package_name": "com.template.singleclinic"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "184530457213-jhmfsn7pa39jfp5pf8mghqbt3m5iijvf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBAtVLXZDpRNp4YYQEZabOlOwfgjPN-x8Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "184530457213-jhmfsn7pa39jfp5pf8mghqbt3m5iijvf.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "184530457213-87m63lqcshmeqaph8qrtjh5pq2sibrbn.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.singleclinic"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
