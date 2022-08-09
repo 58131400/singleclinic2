@@ -8,7 +8,7 @@ import 'package:singleclinic/modals/DoctorsList.dart';
 import 'package:singleclinic/screens/DoctorDetail.dart';
 import 'package:singleclinic/screens/SearchScreen.dart';
 
-import '../AllText.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../main.dart';
 
 class DoctorList extends StatefulWidget {
@@ -96,7 +96,7 @@ class _DoctorListState extends State<DoctorList> {
                       width: 10,
                     ),
                     Text(
-                      DOCTOR_LIST,
+                      AppLocalizations.of(context)!.doctor_list,
                       style: TextStyle(
                           color: BLACK,
                           fontSize: 25,

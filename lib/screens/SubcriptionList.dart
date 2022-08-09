@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:singleclinic/modals/SubscriptionListClass.dart';
 import 'package:singleclinic/screens/PlaceHolderScreen.dart';
 
-import '../AllText.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../main.dart';
 
 class SubcriptionList extends StatefulWidget {
@@ -70,7 +70,7 @@ class _SubcriptionListState extends State<SubcriptionList> {
                   width: 10,
                 ),
                 Text(
-                  MY_SUBCRIPTIONS,
+                  AppLocalizations.of(context)!.my_subcriptions,
                   style: TextStyle(
                       color: BLACK, fontSize: 22, fontWeight: FontWeight.w700),
                 ),
@@ -92,8 +92,9 @@ class _SubcriptionListState extends State<SubcriptionList> {
         : subscriptionListClass == null || subscriptionListClass!.data!.isEmpty
             ? PlaceHolderScreen(
                 iconPath: "assets/placeholders/subscription_holder.png",
-                description: YOUR_SUBSCRIPTIONS_WILL_BE_DISPLAYED_HERE,
-                message: NO_SUBSCRIPTIONS_FOUND,
+                description: AppLocalizations.of(context)!
+                    .your_subscriptions_will_be_displayed_here,
+                message: AppLocalizations.of(context)!.no_subscriptions_found,
               )
             : ListView.builder(
                 itemCount: subscriptionListClass!.data!.length,

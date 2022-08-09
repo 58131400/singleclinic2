@@ -17,11 +17,14 @@ import 'package:singleclinic/screens/SubscriptionPlansScreen.dart';
 import 'package:singleclinic/screens/TermAndConditions.dart';
 import 'package:singleclinic/screens/UpdateProfileScreen.dart';
 import '../main.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SettingsScreen extends StatefulWidget {
   @override
   _SettingsScreenState createState() => _SettingsScreenState();
 }
+
+enum Menu { en, vi }
 
 class _SettingsScreenState extends State<SettingsScreen> {
   String path = "";
@@ -29,6 +32,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String? imageUrl;
   String? name, email;
   List<OptionsList> list = [];
+  String selectedLanguage = "en";
 
   @override
   void initState() {
@@ -38,23 +42,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
         imageUrl = value.getString("profile_pic");
         name = value.getString("name");
         email = value.getString("email");
+        selectedLanguage = value.getString("language_code") ?? 'en';
+
+        if (selectedLanguage == 'en') {
+          list.add(OptionsList(
+            MY_SUBCRIPTIONS,
+            [MY_SUBCRIPTIONS, APPOINTMENT_HISTORY, SUBSCRIPTION_PLANS],
+            [SubcriptionList(), AppointmentScreen(), SubscriptionPlansScreen()],
+          ));
+          list.add(OptionsList(MORE, [DEPARTMENTS, FACILITIES, GALLERY],
+              [DepartmentScreen(), FacilitiesScreen(), GalleryScreen()]));
+          list.add(OptionsList(
+            CONTACT_DETAILS,
+            [TERM_AND_CONDITION, ABOUT_US, CONTACT_US],
+            [TermAndConditions(), AboutUs(), ContactUsScreen()],
+          ));
+        }
+        if (selectedLanguage == 'vi') {
+          list.add(OptionsList(
+            "Đăng kí của tôi",
+            ["Đăng kí", "Lịch hẹn", "Kế hoạch"],
+            [SubcriptionList(), AppointmentScreen(), SubscriptionPlansScreen()],
+          ));
+          list.add(OptionsList("Khác", ["Khoa", "Cơ sở", "Trưng bày"],
+              [DepartmentScreen(), FacilitiesScreen(), GalleryScreen()]));
+          list.add(OptionsList(
+            "Chi tiết liên lạc",
+            ["Điều khoản & quy định", "Về chúng tôi", "Liên hệ"],
+            [TermAndConditions(), AboutUs(), ContactUsScreen()],
+          ));
+        }
       });
     });
-    list.add(OptionsList(
-        MY_SUBCRIPTIONS,
-        [MY_SUBCRIPTIONS, APPOINTMENT_HISTORY, SUBSCRIPTION_PLANS],
-        [SubcriptionList(), AppointmentScreen(), SubscriptionPlansScreen()]));
-    list.add(OptionsList(MORE, [DEPARTMENTS, FACILITIES, GALLERY],
-        [DepartmentScreen(), FacilitiesScreen(), GalleryScreen()]));
-    list.add(OptionsList(
-        CONTACT_DETAILS,
-        [TERM_AND_CONDITION, ABOUT_US, CONTACT_US],
-        [TermAndConditions(), AboutUs(), ContactUsScreen()]));
   }
 
   @override
   Widget build(BuildContext context) {
     print("go to setting screen");
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: LIGHT_GREY_SCREEN_BG,
@@ -78,7 +103,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  SETTING,
+                  AppLocalizations.of(context)!.setting,
                   style: TextStyle(
                       color: BLACK, fontSize: 22, fontWeight: FontWeight.w700),
                 ),
@@ -95,7 +120,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
       child: SingleChildScrollView(
         child: Column(
-          children: [profileCard(), optionsList()],
+          children: [profileCard(), chooseLanguage(), optionsList()],
         ),
       ),
     );
@@ -234,10 +259,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
               InkWell(
                 onTap: () {
-                  messageDialog(ALERT, ARE_YOU_SURE_TO_LOG_OUT);
+                  messageDialog(ALERT,
+                      AppLocalizations.of(context)!.are_you_sure_to_log_out);
                 },
                 child: Text(
-                  name == null ? PROFILE : LOG_OUT,
+                  name == null
+                      ? AppLocalizations.of(context)!.profile
+                      : AppLocalizations.of(context)!.log_out,
                   style: TextStyle(
                       color: name == null ? LIGHT_GREY_TEXT : BLACK,
                       fontSize: 11,
@@ -251,6 +279,71 @@ class _SettingsScreenState extends State<SettingsScreen> {
           )
         ],
       ),
+    );
+  }
+
+  chooseLanguage() {
+    print('selected language2: $selectedLanguage');
+    return Column(
+      children: [
+        SizedBox(
+          height: 20,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              AppLocalizations.of(context)!.language,
+              style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
+            ),
+            PopupMenuButton(
+              child: Row(
+                children: [
+                  Text(selectedLanguage == "en"
+                      ? AppLocalizations.of(context)!.language_en
+                      : AppLocalizations.of(context)!.language_vi),
+                  SizedBox(
+                    width: 15,
+                  ),
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    color: LIGHT_GREY_TEXT,
+                    size: 15,
+                  )
+                ],
+              ),
+              onSelected: (Menu item) {
+                // if (item == Menu.en) _selectedLanguage = 'English';
+                // if (item == Menu.vi) _selectedLanguage = 'Vietnamese';
+                //  Locale newLocale = Locale(item.name);
+                setState(() {
+                  SharedPreferences.getInstance().then((value) {
+                    value.setString("language_code", item.name);
+                    selectedLanguage = item.name;
+                    SingleClinic.setLocale(context,
+                        Locale.fromSubtags(languageCode: selectedLanguage));
+                    print(
+                        " Setting screen set language code : ->${value.getString("language_code")}");
+                  });
+                });
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<Menu>>[
+                PopupMenuItem<Menu>(
+                  value: Menu.en,
+                  child: Text(AppLocalizations.of(context)!.language_en),
+                ),
+                PopupMenuItem<Menu>(
+                  value: Menu.vi,
+                  child: Text(AppLocalizations.of(context)!.language_vi),
+                ),
+              ],
+            ),
+          ],
+        ),
+        Divider(
+          color: LIGHT_GREY_TEXT,
+        ),
+      ],
     );
   }
 

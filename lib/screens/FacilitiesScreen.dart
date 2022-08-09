@@ -6,7 +6,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:http/http.dart';
 import 'package:singleclinic/modals/FacilitiesClass.dart';
 
-import '../AllText.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../main.dart';
 
 class FacilitiesScreen extends StatefulWidget {
@@ -70,7 +70,7 @@ class _FacilitiesScreenState extends State<FacilitiesScreen> {
                   width: 10,
                 ),
                 Text(
-                  FACILITIES,
+                  AppLocalizations.of(context)!.facilities,
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
                 ),
               ],
@@ -97,7 +97,8 @@ class _FacilitiesScreenState extends State<FacilitiesScreen> {
                 height: index % 2 - 1 == 0 ? 120 : 180,
                 width: 100,
                 fit: BoxFit.contain,
-                imageUrl: index % 2 == 0 ? list[index].icon! : list[index].icon!,
+                imageUrl:
+                    index % 2 == 0 ? list[index].icon! : list[index].icon!,
                 progressIndicatorBuilder: (context, url, downloadProgress) =>
                     Container(
                         height: 75,

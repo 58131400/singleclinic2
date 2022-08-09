@@ -472,12 +472,13 @@ class _BookAppointmentState extends State<BookAppointment> {
       },
       initialTime: selectedTime,
     );
+    print(picked);
     if ((DateTime.now().minute >= selectedTime.minute &&
         DateTime.now().hour >= selectedTime.hour &&
         DateTime.now().day == selectedDate.day)) {
       //custom
       setState(() {
-        selectedTime = picked!;
+        if (picked != null) selectedTime = picked;
         print("-> Condition true");
       });
     } else {

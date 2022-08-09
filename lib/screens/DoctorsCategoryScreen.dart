@@ -6,7 +6,7 @@ import 'package:http/http.dart';
 import 'package:singleclinic/modals/DoctorsByDepartmentClass.dart';
 import 'package:singleclinic/screens/DoctorDetail.dart';
 
-import '../AllText.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../main.dart';
 
 class DoctorsCategoryScreen extends StatefulWidget {
@@ -82,7 +82,7 @@ class _DoctorsCategoryScreenState extends State<DoctorsCategoryScreen>
                     width: 10,
                   ),
                   Text(
-                    DOCTORS,
+                    AppLocalizations.of(context)!.doctors,
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
                   ),
                 ],

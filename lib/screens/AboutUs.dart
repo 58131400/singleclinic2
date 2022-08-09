@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
-import '../AllText.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../main.dart';
 
 class AboutUs extends StatefulWidget {
@@ -10,7 +10,7 @@ class AboutUs extends StatefulWidget {
 }
 
 class _AboutUsState extends State<AboutUs> {
-   Widget? html;
+  Widget? html;
 
   @override
   void initState() {
@@ -27,14 +27,16 @@ class _AboutUsState extends State<AboutUs> {
           body: SafeArea(
             child: Stack(
               children: [
-                html == null ? Center(
-                  child: CircularProgressIndicator(),
-                ) :SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 70, 20, 0),
-                    child: html,
-                  ),
-                ),
+                html == null
+                    ? Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    : SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 70, 20, 0),
+                          child: html,
+                        ),
+                      ),
                 Container(
                   color: WHITE,
                   padding: EdgeInsets.all(20),
@@ -54,7 +56,7 @@ class _AboutUsState extends State<AboutUs> {
                         width: 10,
                       ),
                       Text(
-                        ABOUT_US,
+                        AppLocalizations.of(context)!.about_us,
                         style: TextStyle(
                             color: BLACK,
                             fontWeight: FontWeight.bold,
@@ -69,14 +71,13 @@ class _AboutUsState extends State<AboutUs> {
     );
   }
 
-  loadHtml() async{
+  loadHtml() async {
     final data = await rootBundle.loadString('assets/tnc.html');
 
-    setState((){
+    setState(() {
       html = Html(
         data: data,
       );
     });
   }
-
 }

@@ -17,6 +17,7 @@ import 'package:singleclinic/screens/DoctorDetail.dart';
 import 'package:singleclinic/screens/DoctorList.dart';
 import 'package:singleclinic/screens/LoginScreen.dart';
 import 'package:singleclinic/screens/SearchScreen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -117,14 +118,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         backgroundColor: LIGHT_GREY_SCREEN_BG,
         appBar: AppBar(
           backgroundColor: WHITE,
-          flexibleSpace: header(),
+          flexibleSpace: header(context),
         ),
         body: body(),
       ),
     );
   }
 
-  header() {
+  header(BuildContext context) {
     return SafeArea(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -134,10 +135,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  HOME,
-                  style: TextStyle(
-                      color: BLACK, fontSize: 25, fontWeight: FontWeight.w800),
+                Icon(
+                  Icons.home_rounded,
+                  size: 25,
+                  color: NAVY_BLUE,
                 ),
                 InkWell(
                   onTap: () {
@@ -205,15 +206,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            BOOK,
+                            AppLocalizations.of(context)!.book,
                             style: TextStyle(
+                                fontFamily: "Avir",
                                 fontSize: 17,
                                 color: WHITE,
                                 fontWeight: FontWeight.w600),
                           ),
                           Text(
-                            APPOINTMENT,
+                            AppLocalizations.of(context)!.appointment,
                             style: TextStyle(
+                                fontFamily: "Avir",
                                 fontSize: 17,
                                 color: WHITE,
                                 fontWeight: FontWeight.w600),
@@ -222,8 +225,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                             height: 10,
                           ),
                           Text(
-                            QUICKLY_CREATE_FILES,
+                            AppLocalizations.of(context)!.quickly_create_files,
                             style: TextStyle(
+                              fontFamily: "Avir",
                               fontSize: 10,
                               color: WHITE,
                             ),
@@ -245,9 +249,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                 Center(
                                   child: Text(
                                     isLoggedIn
-                                        ? BOOKAPPOINTMENT
-                                        : LOGIN_TO_BOOK_APPOINTMENT,
+                                        ? AppLocalizations.of(context)!
+                                            .bookappointment
+                                        : AppLocalizations.of(context)!
+                                            .login_to_book_appointment,
                                     style: TextStyle(
+                                        fontFamily: "Avir",
                                         fontSize: 9,
                                         color: LIME,
                                         fontWeight: FontWeight.w700),
@@ -270,9 +277,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  DOCTOR_LIST,
+                  AppLocalizations.of(context)!.doctor_list,
                   style: TextStyle(
-                      color: BLACK, fontSize: 17, fontWeight: FontWeight.w700),
+                      fontFamily: "Avir",
+                      color: BLACK,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700),
                 ),
                 InkWell(
                   onTap: () {
@@ -280,8 +290,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         MaterialPageRoute(builder: (context) => DoctorList()));
                   },
                   child: Text(
-                    SEE_ALL,
+                    AppLocalizations.of(context)!.see_all,
                     style: TextStyle(
+                        fontFamily: "Avir",
                         color: NAVY_BLUE,
                         fontSize: 13,
                         fontWeight: FontWeight.w700),
@@ -367,6 +378,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   Text(
                     name!,
                     style: TextStyle(
+                        fontFamily: "Avir",
                         color: BLACK,
                         fontSize: 17,
                         fontWeight: FontWeight.w800),
@@ -384,6 +396,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                       child: Text(
                         department!,
                         style: TextStyle(
+                            fontFamily: "Avir",
                             color: WHITE,
                             fontSize: 10,
                             fontWeight: FontWeight.w700),
@@ -401,6 +414,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
+                            fontFamily: "Avir",
                             color: LIGHT_GREY_TEXT,
                             fontSize: 10,
                           ),
@@ -532,8 +546,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           return WillPopScope(
             onWillPop: _willPopScope,
             child: AlertDialog(
-              title: Text("Log Out"),
-              content: Text("Your account is logged In from another device"),
+              title: Text(AppLocalizations.of(context)!.log_out),
+              content: Text(AppLocalizations.of(context)!
+                  .your_account_is_logged_in_from_another_device),
               actions: [
                 TextButton(
                   child: Text("ok"),

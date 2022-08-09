@@ -4,7 +4,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:singleclinic/main.dart';
 import 'package:http/http.dart' as http;
-import '../AllText.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ForgetPassword extends StatefulWidget {
   @override
@@ -49,7 +49,8 @@ class _ForgetPasswordState extends State<ForgetPassword> {
             children: [
               Expanded(
                 child: Text(
-                  ENTER_THE_EMAIL_ADDRESS_ASSOCIATED_WITH_YOUR_ACCOUNT,
+                  AppLocalizations.of(context)!
+                      .enter_the_email_address_associated_with_your_account,
                   style: TextStyle(
                     fontSize: 20,
                   ),
@@ -65,7 +66,8 @@ class _ForgetPasswordState extends State<ForgetPassword> {
             children: [
               Expanded(
                 child: Text(
-                  WE_WILL_EMAIL_YOU_A_LINK_TO_RESET_YOUR_PASSWORD,
+                  AppLocalizations.of(context)!
+                      .we_will_email_you_a_link_to_reset_your_password,
                   style: TextStyle(fontSize: 16, color: LIGHT_GREY_TEXT),
                   textAlign: TextAlign.center,
                 ),
@@ -147,7 +149,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                   width: 10,
                 ),
                 Text(
-                  FORGET_PASSWORD,
+                  AppLocalizations.of(context)!.forget_password,
                   style: TextStyle(
                       color: NAVY_BLUE,
                       fontSize: 22,
@@ -181,10 +183,9 @@ class _ForgetPasswordState extends State<ForgetPassword> {
               ),
               child: Center(
                 child: Text(
-                  SEND,
+                  AppLocalizations.of(context)!.send,
                   style: TextStyle(
-                      color: WHITE,
-                      fontWeight: FontWeight.w700, fontSize: 17),
+                      color: WHITE, fontWeight: FontWeight.w700, fontSize: 17),
                 ),
               ),
             ),
@@ -194,31 +195,28 @@ class _ForgetPasswordState extends State<ForgetPassword> {
     );
   }
 
-  callApi() async{
-
+  callApi() async {
     processingDialog('Please wait while sending email');
 
-    var request = http.Request('GET', Uri.parse('$SERVER_ADDRESS/api/forgotpassword?email=${email}'));
-
+    var request = http.Request(
+        'GET', Uri.parse('$SERVER_ADDRESS/api/forgotpassword?email=${email}'));
 
     http.StreamedResponse response = await request.send();
 
     if (response.statusCode == 200) {
       final jsonResponse = jsonDecode(await response.stream.bytesToString());
       Navigator.pop(context);
-      if(jsonResponse['status'] == 0){
+      if (jsonResponse['status'] == 0) {
         errorDialog(jsonResponse['msg']);
-      }else{
-        messageDialog(SUCCESSFUL, jsonResponse['msg']);
+      } else {
+        messageDialog(
+            AppLocalizations.of(context)!.successful, jsonResponse['msg']);
       }
-    }
-    else {
+    } else {
       print(response.reasonPhrase);
       errorDialog(response.reasonPhrase);
     }
-
   }
-
 
   errorDialog(message) {
     return showDialog(
@@ -257,7 +255,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text(LOADING),
+            title: Text(AppLocalizations.of(context)!.loading),
             content: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -313,7 +311,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
                   backgroundColor: LIME,
                 ),
                 child: Text(
-                  OK,
+                  AppLocalizations.of(context)!.ok,
                   style: TextStyle(
                     fontWeight: FontWeight.w500,
                     color: BLACK,
@@ -324,5 +322,4 @@ class _ForgetPasswordState extends State<ForgetPassword> {
           );
         });
   }
-
 }

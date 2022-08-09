@@ -3,7 +3,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../AllText.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../main.dart';
 
 class ContactUsScreen extends StatefulWidget {
@@ -69,7 +69,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                   width: 10,
                 ),
                 Text(
-                  CONTACT_US,
+                  AppLocalizations.of(context)!.contact_us,
                   style: TextStyle(
                       color: BLACK, fontSize: 22, fontWeight: FontWeight.w700),
                 ),
@@ -100,7 +100,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          NAME,
+                          AppLocalizations.of(context)!.name,
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.w700),
                         ),
@@ -150,7 +150,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                           height: 25,
                         ),
                         Text(
-                          EMAIL_ADDRESS,
+                          AppLocalizations.of(context)!.email_address,
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.w700),
                         ),
@@ -202,7 +202,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                           height: 25,
                         ),
                         Text(
-                          PHONE_NUMBER,
+                          AppLocalizations.of(context)!.phone_number,
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.w700),
                         ),
@@ -253,7 +253,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                           height: 25,
                         ),
                         Text(
-                          YOUR_QUERY_TOPIC,
+                          AppLocalizations.of(context)!.your_query_topic,
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.w700),
                         ),
@@ -302,7 +302,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                           height: 25,
                         ),
                         Text(
-                          MESSAGE,
+                          AppLocalizations.of(context)!.message,
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.w700),
                         ),
@@ -384,7 +384,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
               ),
               child: Center(
                 child: Text(
-                  SUBMIT,
+                  AppLocalizations.of(context)!.submit,
                   style: TextStyle(
                       color: WHITE, fontWeight: FontWeight.w700, fontSize: 17),
                 ),
@@ -397,7 +397,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
   }
 
   submit() async {
-    processingDialog(PLEASE_WAIT_FOR_A_WHILE);
+    processingDialog(AppLocalizations.of(context)!.please_wait_for_a_while);
     Response response;
     Dio dio = new Dio();
 
@@ -413,7 +413,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
     if (response.statusCode == 200 && response.data['status'] == 1) {
       print(response.toString());
       Navigator.pop(context);
-      messageDialog(DONE, response.data['msg']);
+      messageDialog(AppLocalizations.of(context)!.done, response.data['msg']);
     } else {
       Navigator.pop(context);
       print("Error" + response.toString());
@@ -458,7 +458,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text(LOADING),
+            title: Text(AppLocalizations.of(context)!.loading),
             content: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -512,7 +512,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                 },
                 style: TextButton.styleFrom(backgroundColor: LIME),
                 child: Text(
-                  OK,
+                  AppLocalizations.of(context)!.ok,
                   style: TextStyle(
                     fontWeight: FontWeight.w500,
                     color: BLACK,

@@ -6,7 +6,7 @@ import 'package:http/http.dart';
 import 'package:singleclinic/modals/SearchDoctorClass.dart';
 import 'package:singleclinic/screens/DoctorDetail.dart';
 
-import '../AllText.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../main.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -63,7 +63,8 @@ class _SearchScreenState extends State<SearchScreen> {
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.transparent),
                     ),
-                    hintText: SEARCH_HERE_DOCTOR_NAME,
+                    hintText:
+                        AppLocalizations.of(context)!.search_here_doctor_name,
                     suffixIcon: IconButton(
                       icon: Image.asset(
                         "assets/homescreen/search_header.png",
@@ -152,7 +153,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     width: 10,
                   ),
                   Text(
-                    SEARCH,
+                    AppLocalizations.of(context)!.search,
                     style: TextStyle(
                         color: BLACK,
                         fontSize: 25,

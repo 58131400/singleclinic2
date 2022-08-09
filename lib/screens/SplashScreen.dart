@@ -14,9 +14,10 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   String token = "";
-
+  late Locale locale;
   @override
   void initState() {
+    locale = Locale.fromSubtags(languageCode: 'vi');
     super.initState();
     openHomeScreen();
   }

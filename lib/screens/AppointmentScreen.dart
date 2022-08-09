@@ -6,7 +6,7 @@ import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:singleclinic/modals/UpcomingAppointmrnts.dart';
 import 'package:singleclinic/screens/PlaceHolderScreen.dart';
-import '../AllText.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../main.dart';
 
 class AppointmentScreen extends StatefulWidget {
@@ -71,8 +71,8 @@ class _AppointmentScreenState extends State<AppointmentScreen>
           bottom: TabBar(
             controller: tabController,
             tabs: [
-              Text(UPCOMING),
-              Text(PAST),
+              Text(AppLocalizations.of(context)!.upcoming.toUpperCase()),
+              Text(AppLocalizations.of(context)!.past.toUpperCase()),
             ],
             labelPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
             labelColor: NAVY_BLUE,
@@ -101,9 +101,10 @@ class _AppointmentScreenState extends State<AppointmentScreen>
                           child: PlaceHolderScreen(
                             iconPath:
                                 "assets/placeholders/appointment_holder.png",
-                            message: NO_APPOINTMENT_FOUND,
-                            description:
-                                YOUR_UPCOMING_APPOINTMENTS_WILL_BE_DISPLAYED_HERE,
+                            message: AppLocalizations.of(context)!
+                                .no_appointment_found,
+                            description: AppLocalizations.of(context)!
+                                .your_upcoming_appointments_will_be_displayed_here,
                           ),
                         )
                       : SingleChildScrollView(
@@ -113,7 +114,7 @@ class _AppointmentScreenState extends State<AppointmentScreen>
                               ListView.builder(
                                 shrinkWrap: true,
                                 physics: ClampingScrollPhysics(),
-                                itemCount:  upcomingList.length,
+                                itemCount: upcomingList.length,
                                 itemBuilder: (context, index) {
                                   return upComingAppointmentDetails(index);
                                 },
@@ -138,9 +139,10 @@ class _AppointmentScreenState extends State<AppointmentScreen>
                           child: PlaceHolderScreen(
                             iconPath:
                                 "assets/placeholders/appointment_holder.png",
-                            message: NO_APPOINTMENT_FOUND,
-                            description:
-                                YOUR_PAST_APPOINTMENTS_WILL_BE_DISPLAYED_HERE,
+                            message: AppLocalizations.of(context)!
+                                .no_appointment_found,
+                            description: AppLocalizations.of(context)!
+                                .your_past_appointments_will_be_displayed_here,
                           ),
                         )
                       : SingleChildScrollView(
@@ -150,8 +152,7 @@ class _AppointmentScreenState extends State<AppointmentScreen>
                             physics: ClampingScrollPhysics(),
                             itemCount: pastList.length,
                             itemBuilder: (context, index) {
-                              return 
-                                   pastAppointmentDetails(index);
+                              return pastAppointmentDetails(index);
                             },
                           ),
                         ),
@@ -174,7 +175,7 @@ class _AppointmentScreenState extends State<AppointmentScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    MY_APPOINTMENT,
+                    AppLocalizations.of(context)!.my_appointment,
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
                   ),
                 ],
@@ -561,7 +562,7 @@ class _AppointmentScreenState extends State<AppointmentScreen>
     });
     final response = await get(
         Uri.parse("$SERVER_ADDRESS/api/getuserpastappointment?user_id=$id"));
-    print(response.request!.url);
+    print("respond body: ${response.body}");
     final jsonResponse = jsonDecode(response.body);
     if (response.statusCode == 200 && jsonResponse['status'] == 1) {
       print(jsonResponse);
@@ -573,5 +574,4 @@ class _AppointmentScreenState extends State<AppointmentScreen>
       });
     }
   }
-
 }

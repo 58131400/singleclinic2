@@ -1,6 +1,7 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MyVideoPlayer extends StatefulWidget {
   final String url;
@@ -58,7 +59,7 @@ class _MyVideoPlayerState extends State<MyVideoPlayer> {
                       children: [
                         CircularProgressIndicator(),
                         SizedBox(height: 20),
-                        Text('Loading...'),
+                        Text(AppLocalizations.of(context)!.loading),
                       ],
                     ),
             ),

@@ -3,7 +3,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter/services.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:singleclinic/screens/AppointmentScreen.dart';
@@ -18,7 +18,7 @@ import 'notificationTesting/notificationHelper.dart';
 
 FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
 //String SERVER_ADDRESS = "https://demo.freaktemplate.com/singleclinic";
-String SERVER_ADDRESS = "http://192.168.1.12/PHPScript";
+String SERVER_ADDRESS = "http://192.168.1.9/PHPScript";
 MyNotificationHelper notificationHelper = MyNotificationHelper();
 final String serverToken =
     // "AAAAO2Co7iU:APA91bHzp5j7Do_A_LAFUpwLzqNESEYUUC_At6nLZoB6yH1wmWFsfsvKjOplY9cYH-pJzpVfYTZl68oFkip9F-VlXqr4oB-NA9QuJ1ZMBLPLfXh_mn4taaQR7cXEtw1j2Ryqka2kAlqy";
@@ -46,62 +46,113 @@ void main() async {
 
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-  runApp(MaterialApp(
-    home: SplashScreen(),
-    debugShowCheckedModeBanner: false,
-    theme: ThemeData(
-        textTheme: TextTheme(
-          headline1: TextStyle(
-            fontFamily: "Avir",
+  runApp(const SingleClinic());
+}
+
+class SingleClinic extends StatefulWidget {
+  const SingleClinic({Key? key}) : super(key: key);
+
+  static void setLocale(BuildContext context, Locale newLocale) {
+    print('new locale: $newLocale');
+    _SingleClinicState? state =
+        context.findAncestorStateOfType<_SingleClinicState>();
+    state?.changeLanguage(newLocale);
+  }
+
+  @override
+  _SingleClinicState createState() => _SingleClinicState();
+}
+
+class _SingleClinicState extends State<SingleClinic> {
+  late Locale _locale;
+  @override
+  void initState() {
+    super.initState();
+    _locale = const Locale.fromSubtags(languageCode: 'vi');
+    SharedPreferences.getInstance().then((value) {
+      if (value.getString("language_code") != null) {
+        setState(() {
+          _locale = Locale(value.getString("language_code")!);
+        });
+      }
+      print('locale: $_locale');
+    });
+  }
+
+  changeLanguage(Locale locale) {
+    setState(() {
+      _locale = locale;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: SplashScreen(),
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+          textTheme: TextTheme(
+            headline1: TextStyle(
+              fontFamily: "Avir",
+            ),
+            headline2: TextStyle(
+              fontFamily: "Avir",
+            ),
+            headline3: TextStyle(
+              fontFamily: "Avir",
+            ),
+            headline4: TextStyle(
+              fontFamily: "Avir",
+            ),
+            headline5: TextStyle(
+              fontFamily: "Avir",
+            ),
+            headline6: TextStyle(
+              fontFamily: "Avir",
+            ),
+            subtitle1: TextStyle(
+              fontFamily: "Avir",
+            ),
+            subtitle2: TextStyle(
+              fontFamily: "Avir",
+            ),
+            caption: TextStyle(
+              fontFamily: "Avir",
+            ),
+            bodyText1: TextStyle(
+              fontFamily: "Avir",
+            ),
+            bodyText2: TextStyle(
+              fontFamily: "Avir",
+            ),
+            button: TextStyle(
+              fontFamily: "Avir",
+            ),
           ),
-          headline2: TextStyle(
-            fontFamily: "Avir",
-          ),
-          headline3: TextStyle(
-            fontFamily: "Avir",
-          ),
-          headline4: TextStyle(
-            fontFamily: "Avir",
-          ),
-          headline5: TextStyle(
-            fontFamily: "Avir",
-          ),
-          headline6: TextStyle(
-            fontFamily: "Avir",
-          ),
-          subtitle1: TextStyle(
-            fontFamily: "Avir",
-          ),
-          subtitle2: TextStyle(
-            fontFamily: "Avir",
-          ),
-          caption: TextStyle(
-            fontFamily: "Avir",
-          ),
-          bodyText1: TextStyle(
-            fontFamily: "Avir",
-          ),
-          bodyText2: TextStyle(
-            fontFamily: "Avir",
-          ),
-          button: TextStyle(
-            fontFamily: "Avir",
-          ),
-        ),
-        primaryColor: NAVY_BLUE,
-        colorScheme: ColorScheme.fromSwatch()
-            .copyWith(secondary: LIME, primary: NAVY_BLUE)),
-    localizationsDelegates: [
-      GlobalMaterialLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-    ],
-    supportedLocales: [
-      const Locale('en', ''),
-      const Locale('he', ''),
-      const Locale('ar', ''),
-      const Locale.fromSubtags(languageCode: 'zh'),
-    ],
-  ));
+          primaryColor: NAVY_BLUE,
+          colorScheme: ColorScheme.fromSwatch()
+              .copyWith(secondary: LIME, primary: NAVY_BLUE)),
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      locale: _locale,
+      supportedLocales: [
+        const Locale('vi', ''),
+        const Locale('en', ''),
+      ],
+      localeResolutionCallback: (locale, supportedLocales) {
+        for (var supportedLocale in supportedLocales) {
+          if (supportedLocale.languageCode == locale!.languageCode) {
+            return supportedLocale;
+          }
+        }
+        return supportedLocales.first;
+      },
+    );
+  }
 }
 
 class TabBarScreen extends StatefulWidget {
@@ -138,7 +189,7 @@ class _TabBarScreenState extends State<TabBarScreen>
                 height: 23,
                 width: 23,
               ),
-              label: "Home",
+              label: AppLocalizations.of(context)!.home,
             ),
             BottomNavigationBarItem(
                 icon: Image.asset(
@@ -149,7 +200,7 @@ class _TabBarScreenState extends State<TabBarScreen>
                   height: 23,
                   width: 23,
                 ),
-                label: "Chat"),
+                label: AppLocalizations.of(context)!.chat),
             BottomNavigationBarItem(
                 icon: Image.asset(
                   currentTab == 2
@@ -159,7 +210,7 @@ class _TabBarScreenState extends State<TabBarScreen>
                   height: 23,
                   width: 23,
                 ),
-                label: "Appointment"),
+                label: AppLocalizations.of(context)!.appointment),
             BottomNavigationBarItem(
               icon: Image.asset(
                 currentTab == 3
@@ -169,7 +220,7 @@ class _TabBarScreenState extends State<TabBarScreen>
                 height: 23,
                 width: 23,
               ),
-              label: "Setting",
+              label: AppLocalizations.of(context)!.setting,
             ),
           ],
           type: BottomNavigationBarType.fixed,

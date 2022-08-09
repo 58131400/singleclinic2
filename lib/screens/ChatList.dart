@@ -4,7 +4,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../AllText.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../main.dart';
 import 'ChatScreen.dart';
 import 'PlaceHolderScreen.dart';
@@ -67,7 +67,8 @@ class _ChatListState extends State<ChatList> {
                         focusNode: focusNode,
                         decoration: InputDecoration(
                           filled: true,
-                          hintText: SEARCH_HERE_NAME,
+                          hintText:
+                              AppLocalizations.of(context)!.search_here_name,
                         ),
                         onChanged: (val) {
                           setState(() {
@@ -81,8 +82,9 @@ class _ChatListState extends State<ChatList> {
               Expanded(
                 child: chatListDetails.isEmpty
                     ? PlaceHolderScreen(
-                        message: NO_CHATS,
-                        description: YOUR_CHATS_WILL_BE_DISPLAYED_HERE,
+                        message: AppLocalizations.of(context)!.no_chats,
+                        description: AppLocalizations.of(context)!
+                            .your_chats_will_be_displayed_here,
                         iconPath: "assets/placeholders/message_holder.png",
                       )
                     : Column(
@@ -165,7 +167,9 @@ class _ChatListState extends State<ChatList> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    isSearchClicked ? SEARCH : CHAT,
+                    isSearchClicked
+                        ? AppLocalizations.of(context)!.search
+                        : AppLocalizations.of(context)!.chat,
                     style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
                   ),
                   IconButton(

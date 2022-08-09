@@ -6,7 +6,7 @@ import 'package:http/http.dart';
 import 'package:singleclinic/modals/DepartmentsClass.dart';
 import 'package:singleclinic/screens/DepartmentDetailsScreen.dart';
 
-import '../AllText.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../main.dart';
 
 class DepartmentScreen extends StatefulWidget {
@@ -76,7 +76,7 @@ class _DepartmentScreenState extends State<DepartmentScreen> {
                   width: 10,
                 ),
                 Text(
-                  DEPARTMENTS,
+                  AppLocalizations.of(context)!.departments,
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
                 ),
               ],
@@ -181,7 +181,8 @@ class _DepartmentScreenState extends State<DepartmentScreen> {
                                             BorderRadius.circular(13)),
                                     child: Center(
                                       child: Text(
-                                        VIEW_DETAIL,
+                                        AppLocalizations.of(context)!
+                                            .view_detail,
                                         style: TextStyle(
                                             fontSize: 12,
                                             color: WHITE,

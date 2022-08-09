@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_html/flutter_html.dart';
-import '../AllText.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../main.dart';
 
 class TermAndConditions extends StatefulWidget {
@@ -26,14 +26,16 @@ class _TermAndConditionsState extends State<TermAndConditions> {
           body: SafeArea(
             child: Stack(
               children: [
-                html == null ? Center(
-                  child: CircularProgressIndicator(),
-                ) :SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 70, 20, 0),
-                    child: html,
-                  ),
-                ),
+                html == null
+                    ? Center(
+                        child: CircularProgressIndicator(),
+                      )
+                    : SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 70, 20, 0),
+                          child: html,
+                        ),
+                      ),
                 Container(
                   color: WHITE,
                   padding: EdgeInsets.all(20),
@@ -53,7 +55,7 @@ class _TermAndConditionsState extends State<TermAndConditions> {
                         width: 10,
                       ),
                       Text(
-                        TERM_AND_CONDITION,
+                        AppLocalizations.of(context)!.term_and_condition,
                         style: TextStyle(
                             color: BLACK,
                             fontWeight: FontWeight.bold,
@@ -68,14 +70,13 @@ class _TermAndConditionsState extends State<TermAndConditions> {
     );
   }
 
-  loadHtml() async{
+  loadHtml() async {
     final data = await rootBundle.loadString('assets/tnc.html');
 
-    setState((){
+    setState(() {
       html = Html(
-      data: data,
-    );
+        data: data,
+      );
     });
   }
-
 }

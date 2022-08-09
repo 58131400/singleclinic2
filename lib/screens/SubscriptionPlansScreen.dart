@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:singleclinic/modals/HealthPackage.dart';
 import 'package:singleclinic/screens/LoginScreen.dart';
 
-import '../AllText.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../main.dart';
 import 'SubcriptionList.dart';
 
@@ -44,7 +44,7 @@ class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
 
   @override
   Widget build(BuildContext context) {
-     print("go to SubscriptionPlansScreen");
+    print("go to SubscriptionPlansScreen");
     return SafeArea(
       child: Scaffold(
         backgroundColor: LIGHT_GREY,
@@ -89,7 +89,7 @@ class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
                   width: 10,
                 ),
                 Text(
-                  SUBSCRIPTION,
+                  AppLocalizations.of(context)!.subscription,
                   style: TextStyle(
                       color: BLACK, fontSize: 22, fontWeight: FontWeight.w700),
                 ),
@@ -122,7 +122,7 @@ class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
                   height: 10,
                 ),
                 Text(
-                  PRICING,
+                  AppLocalizations.of(context)!.pricing,
                   style: TextStyle(fontSize: 25, fontWeight: FontWeight.w700),
                 ),
                 Expanded(
@@ -239,7 +239,8 @@ class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
           child: InkWell(
             onTap: () {
               if (selectedTile == null) {
-                errorDialog(PLEASE_SELECT_A_SUBSCRIPTION_PLAN);
+                errorDialog(AppLocalizations.of(context)!
+                    .please_select_a_subscription_plan);
                 return;
               }
               if (isLoggedIn) {
@@ -286,8 +287,11 @@ class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
               ),
               child: Center(
                 child: Text(
-                  isLoggedIn ? ADD_SUBSCRIPTION : LOGIN_TO_ADD_SUBSCRIPTION,
-                  style: TextStyle(color: WHITE,fontWeight: FontWeight.w700, fontSize: 17),
+                  isLoggedIn
+                      ? AppLocalizations.of(context)!.add_subscription
+                      : AppLocalizations.of(context)!.login_to_add_subscription,
+                  style: TextStyle(
+                      color: WHITE, fontWeight: FontWeight.w700, fontSize: 17),
                 ),
               ),
             ),
@@ -329,7 +333,8 @@ class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
       setState(() {
         transactionId = value!.paymentMethodNonce.nonce;
       });
-      processingDialog(PLEASE_WAIT_WHILE_PROCESSING_PAYMENT);
+      processingDialog(
+          AppLocalizations.of(context)!.please_wait_while_processing_payment);
       callApiForAddingSubscription();
       print("\n\n" + value!.paymentMethodNonce.nonce + "\n\n");
     }).catchError((e) {
@@ -376,7 +381,7 @@ class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
                 },
                 style: TextButton.styleFrom(backgroundColor: LIME),
                 child: Text(
-                  YES,
+                  AppLocalizations.of(context)!.yes,
                   style: TextStyle(
                     fontWeight: FontWeight.w500,
                     color: WHITE,
@@ -408,9 +413,11 @@ class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
     print(jsonResponse);
 
     if (response.statusCode == 200 && jsonResponse['status'] == 1) {
-      messageDialog(SUCCESSFUL, SUBSCRIPTION_ADDED_SUCCESSFULLY);
+      messageDialog(AppLocalizations.of(context)!.successful,
+          AppLocalizations.of(context)!.subscription_added_successfully);
     } else {
-      errorDialog(ERROR_WHILE_ADDING_SUBSCRIPTION);
+      errorDialog(
+          AppLocalizations.of(context)!.error_while_adding_subscription);
     }
   }
 
@@ -452,7 +459,7 @@ class _SubscriptionPlansScreenState extends State<SubscriptionPlansScreen> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text(LOADING),
+            title: Text(AppLocalizations.of(context)!.loading),
             content: Row(
               mainAxisSize: MainAxisSize.min,
               children: [

@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:singleclinic/screens/ForgetPassword.dart';
 import 'package:singleclinic/screens/SignUpScreen.dart';
 import 'package:singleclinic/services/AuthService.dart';
-import '../AllText.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../main.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -55,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  LOGIN,
+                  AppLocalizations.of(context)!.login,
                   style: TextStyle(
                       color: NAVY_BLUE,
                       fontSize: 22,
@@ -83,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 30,
               ),
               Text(
-                EMAIL_ADDRESS,
+                AppLocalizations.of(context)!.email_address,
                 style: TextStyle(
                   fontSize: 19,
                   fontWeight: FontWeight.w700,
@@ -124,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 30,
               ),
               Text(
-                PASSWORD,
+                AppLocalizations.of(context)!.password,
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               TextFormField(
@@ -172,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Align(
                   alignment: Alignment.centerRight,
                   child: Text(
-                    FORGET_PASSWORD,
+                    AppLocalizations.of(context)!.forget_password,
                     style: TextStyle(
                         color: NAVY_BLUE,
                         fontSize: 12,
@@ -202,7 +202,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         child: Center(
                           child: Text(
-                            LOGIN,
+                            AppLocalizations.of(context)!.login,
                             style: TextStyle(
                                 color: WHITE,
                                 fontWeight: FontWeight.w700,
@@ -232,7 +232,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       );
                     },
                     child: Text(
-                      REGISTER,
+                      AppLocalizations.of(context)!.register,
                       style: TextStyle(
                           color: NAVY_BLUE,
                           fontSize: 13,
@@ -255,7 +255,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     width: 5,
                   ),
                   Text(
-                    OR,
+                    AppLocalizations.of(context)!.or,
                     style: TextStyle(
                         color: LIGHT_GREY_TEXT,
                         fontWeight: FontWeight.bold,
@@ -305,7 +305,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             Center(
                               child: Text(
-                                CONTINUE_WITH_FACEBOOK,
+                                AppLocalizations.of(context)!
+                                    .continue_with_facebook,
                                 style: TextStyle(
                                     color: WHITE,
                                     fontSize: 16,
@@ -353,7 +354,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             Center(
                               child: Text(
-                                CONTINUE_WITH_GOOGLE,
+                                AppLocalizations.of(context)!
+                                    .continue_with_google,
                                 style: TextStyle(
                                     color: WHITE,
                                     fontSize: 16,
@@ -394,7 +396,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 Center(
                                   child: Text(
-                                    CONTINUE_WITH_APPLE_ID,
+                                    AppLocalizations.of(context)!
+                                        .continue_with_apple_id,
                                     style: TextStyle(
                                         color: WHITE,
                                         fontSize: 16,
@@ -452,7 +455,7 @@ class _LoginScreenState extends State<LoginScreen> {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: Text(LOADING),
+            title: Text(AppLocalizations.of(context)!.loading),
             content: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -475,7 +478,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   loginIntoAccount(int type) async {
-    processingDialog(PLEASE_WAIT_WHILE_LOGGING_INTO_ACCOUNT);
+    processingDialog(
+        AppLocalizations.of(context)!.please_wait_while_logging_into_account);
     Response response;
     Dio dio = new Dio();
 
