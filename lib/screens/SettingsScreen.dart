@@ -36,44 +36,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   void initState() {
-    super.initState();
     SharedPreferences.getInstance().then((value) {
       setState(() {
         imageUrl = value.getString("profile_pic");
         name = value.getString("name");
         email = value.getString("email");
         selectedLanguage = value.getString("language_code") ?? 'en';
-
-        if (selectedLanguage == 'en') {
-          list.add(OptionsList(
-            MY_SUBCRIPTIONS,
-            [MY_SUBCRIPTIONS, APPOINTMENT_HISTORY, SUBSCRIPTION_PLANS],
-            [SubcriptionList(), AppointmentScreen(), SubscriptionPlansScreen()],
-          ));
-          list.add(OptionsList(MORE, [DEPARTMENTS, FACILITIES, GALLERY],
-              [DepartmentScreen(), FacilitiesScreen(), GalleryScreen()]));
-          list.add(OptionsList(
-            CONTACT_DETAILS,
-            [TERM_AND_CONDITION, ABOUT_US, CONTACT_US],
-            [TermAndConditions(), AboutUs(), ContactUsScreen()],
-          ));
-        }
-        if (selectedLanguage == 'vi') {
-          list.add(OptionsList(
-            "Đăng kí của tôi",
-            ["Đăng kí", "Lịch hẹn", "Kế hoạch"],
-            [SubcriptionList(), AppointmentScreen(), SubscriptionPlansScreen()],
-          ));
-          list.add(OptionsList("Khác", ["Khoa", "Cơ sở", "Trưng bày"],
-              [DepartmentScreen(), FacilitiesScreen(), GalleryScreen()]));
-          list.add(OptionsList(
-            "Chi tiết liên lạc",
-            ["Điều khoản & quy định", "Về chúng tôi", "Liên hệ"],
-            [TermAndConditions(), AboutUs(), ContactUsScreen()],
-          ));
-        }
+        
+        
       });
     });
+    super.initState();
   }
 
   @override
@@ -348,6 +321,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   optionsList() {
+    setState(() {
+      list.clear();
+      if (selectedLanguage == 'en') {
+          list.add(OptionsList(
+            MY_SUBCRIPTIONS,
+            [MY_SUBCRIPTIONS, APPOINTMENT_HISTORY, SUBSCRIPTION_PLANS],
+            [SubcriptionList(), AppointmentScreen(), SubscriptionPlansScreen()],
+          ));
+          list.add(OptionsList(MORE, [DEPARTMENTS, FACILITIES, GALLERY],
+              [DepartmentScreen(), FacilitiesScreen(), GalleryScreen()]));
+          list.add(OptionsList(
+            CONTACT_DETAILS,
+            [TERM_AND_CONDITION, ABOUT_US, CONTACT_US],
+            [TermAndConditions(), AboutUs(), ContactUsScreen()],
+          ));
+        }
+        if (selectedLanguage == 'vi') {
+          list.add(OptionsList(
+            "Đăng kí của tôi",
+            ["Đăng kí", "Lịch hẹn", "Kế hoạch"],
+            [SubcriptionList(), AppointmentScreen(), SubscriptionPlansScreen()],
+          ));
+          list.add(OptionsList("Khác", ["Khoa", "Cơ sở", "Trưng bày"],
+              [DepartmentScreen(), FacilitiesScreen(), GalleryScreen()]));
+          list.add(OptionsList(
+            "Chi tiết liên lạc",
+            ["Điều khoản & quy định", "Về chúng tôi", "Liên hệ"],
+            [TermAndConditions(), AboutUs(), ContactUsScreen()],
+          ));
+        }
+    });
     return ListView.builder(
       shrinkWrap: true,
       physics: ClampingScrollPhysics(),
