@@ -477,12 +477,15 @@ class _ChatListState extends State<ChatList> {
         .child(uid.toString())
         .onValue
         .listen((event) {
-      print("chat list : " + event.snapshot.child('chatlist').value.toString());
+      print("chat list : ${event.snapshot.child('chatlist').value.toString()}");
       setState(() {
         chatListDetailsPA.clear();
         print("testing : " + "data retrievd from firebase");
       });
+      DataSnapshot data = event.snapshot.child('chatList');
+      
       try {
+        
         Map<dynamic, dynamic>.from(
                 event.snapshot.child('chatList').value as dynamic)
             .forEach((key, values) {
@@ -501,7 +504,9 @@ class _ChatListState extends State<ChatList> {
             }
           });
         });
-      } catch (e) {}
+      } catch (e) {
+        print('error: ${e}');
+      }
 
       if (chatListDetailsPA.length > 1) {
         chatListDetailsPA.sort((a, b) => b.time.compareTo(a.time));
