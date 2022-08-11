@@ -1,8 +1,8 @@
 {
-    "language_vi":"vietnamese",
-    "language_en":"english",
-    "home":"home",
-    "language": "language",   
+    "language_vi":"Vietnamese",
+    "language_en":"English",
+    "home":"Home",
+    "language": "Language",   
     "book": "book",
     "appointment": "appointment",
     "doctor_list": "doctor list",

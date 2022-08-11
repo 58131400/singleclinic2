@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:singleclinic/AllText.dart';
 import 'package:singleclinic/modals/DepartmentsList.dart';
 import 'package:singleclinic/modals/DoctorsAndServices.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../main.dart';
 
 class BookAppointment extends StatefulWidget {
@@ -112,7 +112,7 @@ class _BookAppointmentState extends State<BookAppointment> {
                   width: 10,
                 ),
                 Text(
-                  APPOINTMENT_NOW,
+                  AppLocalizations.of(context)!.appointment_now.toUpperCase(),
                   style: TextStyle(
                       color: NAVY_BLUE,
                       fontSize: 22,

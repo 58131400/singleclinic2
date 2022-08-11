@@ -87,7 +87,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           flexibleSpace: header(),
           backgroundColor: WHITE,
         ),
-        body: body(),
+        body: body(context),
       ),
     );
   }
@@ -115,12 +115,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  body() {
+  body(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
       child: SingleChildScrollView(
         child: Column(
-          children: [profileCard(), chooseLanguage(), optionsList()],
+          children: [profileCard(), chooseLanguage(context), optionsList()],
         ),
       ),
     );
@@ -282,7 +282,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  chooseLanguage() {
+  chooseLanguage(BuildContext context) {
     print('selected language2: $selectedLanguage');
     return Column(
       children: [
@@ -322,6 +322,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     selectedLanguage = item.name;
                     SingleClinic.setLocale(context,
                         Locale.fromSubtags(languageCode: selectedLanguage));
+                    Navigator.popUntil(context, (route) => route.isFirst);
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TabBarScreen(),
+                        ));
                     print(
                         " Setting screen set language code : ->${value.getString("language_code")}");
                   });
