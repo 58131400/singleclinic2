@@ -36,14 +36,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   void initState() {
-    super.initState();
     SharedPreferences.getInstance().then((value) {
       setState(() {
         imageUrl = value.getString("profile_pic");
         name = value.getString("name");
         email = value.getString("email");
         selectedLanguage = value.getString("language_code") ?? 'en';
-
+        print('init language' + selectedLanguage);
         if (selectedLanguage == 'en') {
           list.add(OptionsList(
             MY_SUBCRIPTIONS,
@@ -74,6 +73,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         }
       });
     });
+    super.initState();
   }
 
   @override
@@ -282,6 +282,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  Future<dynamic> getUsedLanguage() async {}
   chooseLanguage(BuildContext context) {
     print('selected language2: $selectedLanguage');
     return Column(
@@ -313,9 +314,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ],
               ),
               onSelected: (Menu item) {
-                // if (item == Menu.en) _selectedLanguage = 'English';
-                // if (item == Menu.vi) _selectedLanguage = 'Vietnamese';
-                //  Locale newLocale = Locale(item.name);
                 setState(() {
                   SharedPreferences.getInstance().then((value) {
                     value.setString("language_code", item.name);

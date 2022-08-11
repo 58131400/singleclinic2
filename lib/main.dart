@@ -65,18 +65,18 @@ class SingleClinic extends StatefulWidget {
 }
 
 class _SingleClinicState extends State<SingleClinic> {
-  late Locale _locale;
+  Locale? _locale;
   @override
   void initState() {
     super.initState();
-    _locale = const Locale.fromSubtags(languageCode: 'vi');
+
     SharedPreferences.getInstance().then((value) {
       if (value.getString("language_code") != null) {
+        print('main : ' + value.getString("language_code").toString());
         setState(() {
           _locale = Locale(value.getString("language_code")!);
         });
       }
-      print('locale: $_locale');
     });
   }
 
