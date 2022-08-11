@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:singleclinic/screens/AppointmentScreen.dart';
 import 'package:singleclinic/screens/ChatList.dart';
@@ -91,44 +92,46 @@ class _SingleClinicState extends State<SingleClinic> {
       home: SplashScreen(),
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-          textTheme: TextTheme(
-            headline1: TextStyle(
-              fontFamily: "Avir",
-            ),
-            headline2: TextStyle(
-              fontFamily: "Avir",
-            ),
-            headline3: TextStyle(
-              fontFamily: "Avir",
-            ),
-            headline4: TextStyle(
-              fontFamily: "Avir",
-            ),
-            headline5: TextStyle(
-              fontFamily: "Avir",
-            ),
-            headline6: TextStyle(
-              fontFamily: "Avir",
-            ),
-            subtitle1: TextStyle(
-              fontFamily: "Avir",
-            ),
-            subtitle2: TextStyle(
-              fontFamily: "Avir",
-            ),
-            caption: TextStyle(
-              fontFamily: "Avir",
-            ),
-            bodyText1: TextStyle(
-              fontFamily: "Avir",
-            ),
-            bodyText2: TextStyle(
-              fontFamily: "Avir",
-            ),
-            button: TextStyle(
-              fontFamily: "Avir",
-            ),
-          ),
+          textTheme: GoogleFonts.robotoTextTheme(Theme.of(context).textTheme),
+          // textTheme: TextTheme(
+
+          // headline1: TextStyle(
+          //   fontFamily: "Avir",
+          // ),
+          // headline2: TextStyle(
+          //   fontFamily: "Avir",
+          // ),
+          // headline3: TextStyle(
+          //   fontFamily: "Avir",
+          // ),
+          // headline4: TextStyle(
+          //   fontFamily: "Avir",
+          // ),
+          // headline5: TextStyle(
+          //   fontFamily: "Avir",
+          // ),
+          // headline6: TextStyle(
+          //   fontFamily: "Avir",
+          // ),
+          // subtitle1: TextStyle(
+          //   fontFamily: "Avir",
+          // ),
+          // subtitle2: TextStyle(
+          //   fontFamily: "Avir",
+          // ),
+          // caption: TextStyle(
+          //   fontFamily: "Avir",
+          // ),
+          // bodyText1: TextStyle(
+          //   fontFamily: "Avir",
+          // ),
+          // bodyText2: TextStyle(
+          //   fontFamily: "Avir",
+          // ),
+          // button: TextStyle(
+          //   fontFamily: "Avir",
+          // ),
+
           primaryColor: NAVY_BLUE,
           colorScheme: ColorScheme.fromSwatch()
               .copyWith(secondary: LIME, primary: NAVY_BLUE)),
