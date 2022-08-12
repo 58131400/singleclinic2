@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:singleclinic/AllText.dart';
 import 'package:singleclinic/modals/DepartmentsList.dart';
 import 'package:singleclinic/modals/DoctorsAndServices.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../main.dart';
 
 class BookAppointment extends StatefulWidget {
@@ -112,7 +112,7 @@ class _BookAppointmentState extends State<BookAppointment> {
                   width: 10,
                 ),
                 Text(
-                  APPOINTMENT_NOW,
+                  AppLocalizations.of(context)!.appointment_now.toUpperCase(),
                   style: TextStyle(
                       color: NAVY_BLUE,
                       fontSize: 22,
@@ -146,7 +146,7 @@ class _BookAppointmentState extends State<BookAppointment> {
                     DropdownButton(
                       isExpanded: true,
                       hint: Text(
-                        SELECT_DEPARTMENT,
+                        AppLocalizations.of(context)!.select_department,
                       ),
                       value: departmentValue,
                       items:
@@ -264,7 +264,7 @@ class _BookAppointmentState extends State<BookAppointment> {
                       height: 15,
                     ),
                     Text(
-                      NAME,
+                      AppLocalizations.of(context)!.name,
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                     ),
@@ -285,7 +285,7 @@ class _BookAppointmentState extends State<BookAppointment> {
                       height: 15,
                     ),
                     Text(
-                      PHONE_NUMBER,
+                      AppLocalizations.of(context)!.phone_number,
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                     ),
@@ -307,7 +307,7 @@ class _BookAppointmentState extends State<BookAppointment> {
                       height: 15,
                     ),
                     Text(
-                      DATE,
+                      AppLocalizations.of(context)!.date,
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                     ),
@@ -338,7 +338,7 @@ class _BookAppointmentState extends State<BookAppointment> {
                       height: 15,
                     ),
                     Text(
-                      TIME,
+                      AppLocalizations.of(context)!.time,
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                     ),
@@ -369,7 +369,7 @@ class _BookAppointmentState extends State<BookAppointment> {
                       height: 15,
                     ),
                     Text(
-                      MESSAGE,
+                      AppLocalizations.of(context)!.message,
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                     ),
@@ -427,7 +427,7 @@ class _BookAppointmentState extends State<BookAppointment> {
                 ),
                 child: Center(
                   child: Text(
-                    ADD_APPOINTMENT,
+                    AppLocalizations.of(context)!.add_appointment.toUpperCase(),
                     style: TextStyle(
                         color: WHITE,
                         fontWeight: FontWeight.w700,
@@ -605,7 +605,7 @@ class _BookAppointmentState extends State<BookAppointment> {
         builder: (context) {
           return AlertDialog(
             title: Text(
-              PROCESSING,
+              AppLocalizations.of(context)!.processing,
             ),
             content: Container(
               margin: EdgeInsets.fromLTRB(0, 10, 0, 10),
@@ -617,7 +617,8 @@ class _BookAppointmentState extends State<BookAppointment> {
                   ),
                   Expanded(
                     child: Text(
-                      PLEASE_WAIT_WHILE_MAKING_APPOINTMENT,
+                      AppLocalizations.of(context)!
+                          .please_wait_while_making_appointment,
                       style: TextStyle(fontSize: 12),
                     ),
                   )

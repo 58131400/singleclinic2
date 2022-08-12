@@ -71,6 +71,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.3.1"
+  checked_yaml:
+    dependency: transitive
+    description:
+      name: checked_yaml
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.1"
   chewie:
     dependency: "direct main"
     description:
@@ -78,6 +85,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.3.4"
+  cli_util:
+    dependency: transitive
+    description:
+      name: cli_util
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.5"
   clock:
     dependency: transitive
     description:
@@ -341,7 +355,7 @@ packages:
       name: flutter_launcher_icons
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.9.3"
+    version: "0.10.0"
   flutter_local_notifications:
     dependency: "direct main"
     description:
@@ -374,7 +388,7 @@ packages:
       name: flutter_login_facebook
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.5.0+1"
+    version: "1.6.0"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -395,7 +409,7 @@ packages:
       name: flutter_svg
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.2"
+    version: "1.1.3"
   flutter_test:
     dependency: transitive
     description: flutter
@@ -426,7 +440,7 @@ packages:
       name: google_sign_in
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "5.4.0"
+    version: "5.4.1"
   google_sign_in_android:
     dependency: transitive
     description:
@@ -489,21 +503,21 @@ packages:
       name: image_cropper
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.3"
+    version: "3.0.0"
   image_cropper_for_web:
     dependency: transitive
     description:
       name: image_cropper_for_web
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.4"
+    version: "1.0.2"
   image_cropper_platform_interface:
     dependency: transitive
     description:
       name: image_cropper_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.0"
+    version: "3.0.2"
   image_picker:
     dependency: "direct main"
     description:
@@ -517,7 +531,7 @@ packages:
       name: image_picker_android
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.8.5+1"
+    version: "0.8.5+2"
   image_picker_for_web:
     dependency: "direct main"
     description:
@@ -553,6 +567,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.6.4"
+  json_annotation:
+    dependency: transitive
+    description:
+      name: json_annotation
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.6.0"
   list_ext:
     dependency: transitive
     description:
@@ -643,7 +664,7 @@ packages:
       name: path_provider_android
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.17"
+    version: "2.0.18"
   path_provider_ios:
     dependency: transitive
     description:
@@ -823,7 +844,7 @@ packages:
       name: sqflite
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.3"
+    version: "2.0.3+1"
   sqflite_common:
     dependency: transitive
     description:
@@ -949,7 +970,7 @@ packages:
       name: url_launcher_web
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.12"
+    version: "2.0.13"
   url_launcher_windows:
     dependency: transitive
     description:
@@ -977,7 +998,7 @@ packages:
       name: video_player
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.4.5"
+    version: "2.4.6"
   video_player_android:
     dependency: transitive
     description:
@@ -998,7 +1019,7 @@ packages:
       name: video_player_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "5.1.3"
+    version: "5.1.4"
   video_player_web:
     dependency: transitive
     description:

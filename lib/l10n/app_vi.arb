@@ -93,54 +93,61 @@
     "search_here_doctor_name": "Tìm tên bác sĩ...",
     "search_here_name": "Tìm tên..",
     "profile": "Hồ sơ",
-    "login_to_book_appointment": "đăng nhập để đặt lịch hẹn",
-    "login_to_add_subscription": "đăng nhập để thêm đăng kí",
-    "are_you_sure_to_log_out": "bạn muốn đăng xuất chứ",
-    "your_query_topic": "chủ đề truy vấn của bạn",
-    "successful": "thành công",
-    "doctors": "bác sĩ",
-    "add_subscription": "thêm đăng kí",
+    "login_to_book_appointment": "Đăng nhập để đặt lịch hẹn",
+    "login_to_add_subscription": "Đăng nhập để thêm đăng kí",
+    "are_you_sure_to_log_out": "Bạn muốn đăng xuất?",
+    "your_query_topic": "Chủ đề truy vấn của bạn",
+    "successful": "Thành công",
+    "doctors": "Bác sĩ",
+    "add_subscription": "Thêm đăng kí",
     "subscription_added_successfully":
-        "đăng kí được thêm thành công",
+        "Đăng kí được thêm thành công",
     "enter_all_fields_to_make_appointment":
-        "nhập tất cả các trường để đặt lịch",
+        "Nhập tất cả các trường để đặt lịch",
     "please_wait_while_making_appointment":
-        "vui lòng chờ tạo lịch hẹn...",
+        "Vui lòng chờ tạo lịch hẹn...",
     "please_wait_while_adding_review":
-        "vui lòng chờ thêm đánh giá...",
+        "Vui lòng chờ thêm đánh giá...",
     "please_wait_while_updating_profile":
-        "vui lòng chờ cập nhật hồ sơ...",
+        "Vui lòng chờ cập nhật hồ sơ...",
     "please_wait_for_a_while": "vui lòng chờ trong giây lát...",
     "please_wait_while_processing_payment":
-        "vui lòng chờ thanh toán...",
+        "Vui lòng chờ thanh toán...",
     "please_select_a_subscription_plan":
-        "xin chọn một kế hoạch đăng kí",
+        "Xin chọn một kế hoạch đăng kí",
     "error_while_generating_transaction_id":
-        "error while generating transaction id",
+        "Lỗi khi tạo mã giao dịch",
     "error_while_adding_subscription":
-        "error while adding subscription",
-    "no_subscriptions_found": "no subscription",
+        "Lỗi khi thêm đăng kí",
+    "no_subscriptions_found": "Không tìm thấy đăng kí nào",
     "your_subscriptions_will_be_displayed_here":
-        "your subscriptions will be displayed here",
-    "no_appointment_found": "không có lịch hẹn",
+        "Đăng kí của bạn sẽ hiển thị ở đây",
+    "no_appointment_found": "Không có lịch hẹn",
     "your_upcoming_appointments_will_be_displayed_here":
-        "bạn chưa có bất kỳ cuộc hẹn nào, bắt đầu tư vấn với bác sĩ",
+        "Bạn chưa có bất kỳ cuộc hẹn nào, bắt đầu tư vấn với bác sĩ",
     "your_past_appointments_will_be_displayed_here":
-        "bạn chưa có bất kỳ cuộc hẹn nào, bắt đầu tư vấn với bác sĩ",
-    "no_reviews": "không có đánh giá",
-    "no_chats": "không có trò chuyện",
+        "Bạn chưa có bất kỳ cuộc hẹn nào, bắt đầu tư vấn với bác sĩ",
+    "no_reviews": "Không có đánh giá nào",
+    "no_chats": "Không có trò chuyện nào",
     "your_chats_will_be_displayed_here":
-        "bắt đầu trò chuyện với bác sĩ",
+        "Bắt đầu trò chuyện với bác sĩ",
     "doctor_reviews_will_be_displayed_here":
-        "đánh giá của bác sĩ sẽ được hiển thị ở đây",
+        "Đánh giá của bác sĩ sẽ được hiển thị ở đây",
 
-    "take_a_picture": "chọn ảnh",
+    "take_a_picture": "Chọn ảnh",
     "take_a_picture_desc":
-        "sử dụng máy ảnh của bạn để chụp ảnh khi đang di chuyển",
-    "pick_from_gallery": "chọn từ thư viện",
+        "Sử dụng máy ảnh của bạn để chụp ảnh khi đang di chuyển",
+    "pick_from_gallery": "Chọn từ thư viện",
     "pick_from_gallery_desc":
-        "chọn hình ảnh trực tiếp từ bộ nhớ điện thoại của bạn",
-    "cancel": "hủy bỏ",
-    "select_a_method": "chọn một phương pháp",
-     "your_account_is_logged_in_from_another_device":"Tài khoản của bạn đang được đăng nhập từ thiết bị khác"
+        "Chọn hình ảnh trực tiếp từ bộ nhớ điện thoại của bạn",
+    "cancel": "Hủy bỏ",
+    "select_a_method": "Chọn một phương pháp",
+     "your_account_is_logged_in_from_another_device":"Tài khoản của bạn đang được đăng nhập từ thiết bị khác",
+      "edit_video": "Chỉnh sửa video",
+      "photo": "Hình ảnh",
+      "remove_Message": "Xóa tin nhắn",
+      "are_you_sure_to_remove_this_message": "Bạn muốn xóa tin nhắn này chứ ?",
+      "remove":"Xóa bỏ",
+      "all_doctors":"Tất cả bác sĩ",
+      "see_all_reviews":"Xem tất cả đánh giá"
 }

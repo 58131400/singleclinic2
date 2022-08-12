@@ -42,8 +42,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
         name = value.getString("name");
         email = value.getString("email");
         selectedLanguage = value.getString("language_code") ?? 'en';
-        
-        
+
+        if (selectedLanguage == 'en') {
+          list.add(OptionsList(
+            MY_SUBCRIPTIONS,
+            [MY_SUBCRIPTIONS, APPOINTMENT_HISTORY, SUBSCRIPTION_PLANS],
+            [SubcriptionList(), AppointmentScreen(), SubscriptionPlansScreen()],
+          ));
+          list.add(OptionsList(MORE, [DEPARTMENTS, FACILITIES, GALLERY],
+              [DepartmentScreen(), FacilitiesScreen(), GalleryScreen()]));
+          list.add(OptionsList(
+            CONTACT_DETAILS,
+            [TERM_AND_CONDITION, ABOUT_US, CONTACT_US],
+            [TermAndConditions(), AboutUs(), ContactUsScreen()],
+          ));
+        }
+        if (selectedLanguage == 'vi') {
+          list.add(OptionsList(
+            "Đăng kí của tôi",
+            ["Đăng kí", "Lịch hẹn", "Kế hoạch"],
+            [SubcriptionList(), AppointmentScreen(), SubscriptionPlansScreen()],
+          ));
+          list.add(OptionsList("Khác", ["Khoa", "Cơ sở", "Trưng bày"],
+              [DepartmentScreen(), FacilitiesScreen(), GalleryScreen()]));
+          list.add(OptionsList(
+            "Chi tiết liên lạc",
+            ["Điều khoản & quy định", "Về chúng tôi", "Liên hệ"],
+            [TermAndConditions(), AboutUs(), ContactUsScreen()],
+          ));
+        }
       });
     });
     super.initState();
@@ -60,7 +87,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           flexibleSpace: header(),
           backgroundColor: WHITE,
         ),
-        body: body(),
+        body: body(context),
       ),
     );
   }
@@ -88,12 +115,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  body() {
+  body(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
       child: SingleChildScrollView(
         child: Column(
-          children: [profileCard(), chooseLanguage(), optionsList()],
+          children: [profileCard(), chooseLanguage(context), optionsList()],
         ),
       ),
     );
@@ -255,7 +282,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  chooseLanguage() {
+  Future<dynamic> getUsedLanguage() async {}
+  chooseLanguage(BuildContext context) {
     print('selected language2: $selectedLanguage');
     return Column(
       children: [
@@ -286,15 +314,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ],
               ),
               onSelected: (Menu item) {
-                // if (item == Menu.en) _selectedLanguage = 'English';
-                // if (item == Menu.vi) _selectedLanguage = 'Vietnamese';
-                //  Locale newLocale = Locale(item.name);
                 setState(() {
                   SharedPreferences.getInstance().then((value) {
                     value.setString("language_code", item.name);
                     selectedLanguage = item.name;
                     SingleClinic.setLocale(context,
                         Locale.fromSubtags(languageCode: selectedLanguage));
+                    Navigator.popUntil(context, (route) => route.isFirst);
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TabBarScreen(),
+                        ));
                     print(
                         " Setting screen set language code : ->${value.getString("language_code")}");
                   });
