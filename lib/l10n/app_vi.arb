@@ -142,5 +142,12 @@
         "Chọn hình ảnh trực tiếp từ bộ nhớ điện thoại của bạn",
     "cancel": "Hủy bỏ",
     "select_a_method": "Chọn một phương pháp",
-     "your_account_is_logged_in_from_another_device":"Tài khoản của bạn đang được đăng nhập từ thiết bị khác"
+     "your_account_is_logged_in_from_another_device":"Tài khoản của bạn đang được đăng nhập từ thiết bị khác",
+      "edit_video": "Chỉnh sửa video",
+      "photo": "Hình ảnh",
+      "remove_Message": "Xóa tin nhắn",
+      "are_you_sure_to_remove_this_message": "Bạn muốn xóa tin nhắn này chứ ?",
+      "remove":"Xóa bỏ",
+      "all_doctors":"Tất cả bác sĩ",
+      "see_all_reviews":"Xem tất cả đánh giá"
 }

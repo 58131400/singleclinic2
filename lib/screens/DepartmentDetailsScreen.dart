@@ -7,6 +7,7 @@ import 'package:singleclinic/AllText.dart';
 import 'package:singleclinic/main.dart';
 import 'package:singleclinic/modals/DepartmentDetails.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'DoctorsCategoryScreen.dart';
 
@@ -106,8 +107,8 @@ class _DepartmentDetailsScreenState extends State<DepartmentDetailsScreen> {
                                     InkWell(
                                       borderRadius: BorderRadius.circular(20),
                                       onTap: () {
-                                        _makeCall(
-                                            departmentDetails!.data!.emergencyNo);
+                                        _makeCall(departmentDetails!
+                                            .data!.emergencyNo);
                                       },
                                       child: Container(
                                         height: 40,
@@ -168,8 +169,8 @@ class _DepartmentDetailsScreenState extends State<DepartmentDetailsScreen> {
                                       height: 10,
                                     ),
                                     ListView.builder(
-                                      itemCount:
-                                          departmentDetails!.data!.service!.length,
+                                      itemCount: departmentDetails!
+                                          .data!.service!.length,
                                       shrinkWrap: true,
                                       physics: ClampingScrollPhysics(),
                                       itemBuilder: (context, index) {
@@ -184,8 +185,8 @@ class _DepartmentDetailsScreenState extends State<DepartmentDetailsScreen> {
                                                       .spaceBetween,
                                               children: [
                                                 Text(
-                                                  departmentDetails!
-                                                      .data!.service![index].name!,
+                                                  departmentDetails!.data!
+                                                      .service![index].name!,
                                                   style: TextStyle(
                                                       color: LIGHT_GREY_TEXT,
                                                       fontSize: 15),
@@ -244,7 +245,7 @@ class _DepartmentDetailsScreenState extends State<DepartmentDetailsScreen> {
                                 ),
                                 Center(
                                   child: Text(
-                                    "All Doctors",
+                                    AppLocalizations.of(context)!.all_doctors,
                                     style: TextStyle(
                                         color: WHITE,
                                         fontWeight: FontWeight.w700,

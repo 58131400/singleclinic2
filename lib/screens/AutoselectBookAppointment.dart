@@ -178,7 +178,9 @@ class _AutoselectBookAppointmentState extends State<AutoselectBookAppointment> {
                   DropdownButton<String>(
                     isExpanded: true,
                     hint: Text(
-                      isLoadingDoctorAndServices ? LOADING : SELECT_SERVICES,
+                      isLoadingDoctorAndServices
+                          ? AppLocalizations.of(context)!.loading
+                          : AppLocalizations.of(context)!.select_services,
                     ),
                     icon: Image.asset(
                       "assets/bookappointment/down-arrow.png",
@@ -217,7 +219,7 @@ class _AutoselectBookAppointmentState extends State<AutoselectBookAppointment> {
                     height: 15,
                   ),
                   Text(
-                    NAME,
+                    AppLocalizations.of(context)!.name,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                   ),
                   SizedBox(
@@ -237,7 +239,7 @@ class _AutoselectBookAppointmentState extends State<AutoselectBookAppointment> {
                     height: 15,
                   ),
                   Text(
-                    PHONE_NUMBER,
+                    AppLocalizations.of(context)!.phone_number,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                   ),
                   SizedBox(
@@ -258,7 +260,7 @@ class _AutoselectBookAppointmentState extends State<AutoselectBookAppointment> {
                     height: 15,
                   ),
                   Text(
-                    DATE,
+                    AppLocalizations.of(context)!.date,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                   ),
                   InkWell(
@@ -288,7 +290,7 @@ class _AutoselectBookAppointmentState extends State<AutoselectBookAppointment> {
                     height: 15,
                   ),
                   Text(
-                    TIME,
+                    AppLocalizations.of(context)!.time,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                   ),
                   InkWell(
@@ -318,7 +320,7 @@ class _AutoselectBookAppointmentState extends State<AutoselectBookAppointment> {
                     height: 15,
                   ),
                   Text(
-                    MESSAGE,
+                    AppLocalizations.of(context)!.message,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                   ),
                   TextField(
@@ -374,7 +376,7 @@ class _AutoselectBookAppointmentState extends State<AutoselectBookAppointment> {
                 ),
                 child: Center(
                   child: Text(
-                    ADD_APPOINTMENT,
+                    AppLocalizations.of(context)!.add_appointment.toUpperCase(),
                     style: TextStyle(
                         color: WHITE,
                         fontWeight: FontWeight.w700,
@@ -539,7 +541,7 @@ class _AutoselectBookAppointmentState extends State<AutoselectBookAppointment> {
         builder: (context) {
           return AlertDialog(
             title: Text(
-              PROCESSING,
+              AppLocalizations.of(context)!.processing,
             ),
             content: Container(
               margin: EdgeInsets.fromLTRB(0, 10, 0, 10),
@@ -551,7 +553,8 @@ class _AutoselectBookAppointmentState extends State<AutoselectBookAppointment> {
                   ),
                   Expanded(
                     child: Text(
-                      PLEASE_WAIT_WHILE_MAKING_APPOINTMENT,
+                      AppLocalizations.of(context)!
+                          .please_wait_while_making_appointment,
                       style: TextStyle(fontSize: 12),
                     ),
                   )

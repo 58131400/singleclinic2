@@ -528,7 +528,7 @@ class _ChatListState extends State<ChatList> {
             width: 5,
           ),
           Text(
-            "Photo",
+            AppLocalizations.of(context)!.photo,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(

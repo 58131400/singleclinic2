@@ -142,6 +142,12 @@
         "select image from your phones storage directly",
     "cancel": "cancel",
     "select_a_method": "select a method",
-    "your_account_is_logged_in_from_another_device":"Your account is logged In from another device"
-
+    "your_account_is_logged_in_from_another_device":"Your account is logged In from another device",
+    "edit_video": "Edit video",
+    "photo":"photo",
+    "remove_Message": "Remove Message",
+    "are_you_sure_to_remove_this_message":"Are you sure to remove this message ?",
+    "remove":"remove",
+    "all_doctors":"All Doctors",
+    "see_all_reviews":"See all reviews"
 }

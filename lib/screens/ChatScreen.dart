@@ -25,6 +25,7 @@ import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:video_player/video_player.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:http/http.dart' as http;
 
 class ChatScreen extends StatefulWidget {
@@ -91,7 +92,6 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   final DatabaseReference databaseReference2 = FirebaseDatabase.instance.ref();
   final DatabaseReference databaseReference3 = FirebaseDatabase.instance.ref();
   FlutterUploader uploader = FlutterUploader();
-  
 
   Map<String, StreamSubscription> _resultSubscription = {};
 
@@ -141,7 +141,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       print("0-> Chat Screen Payload : ${value.getString("payload")}");
     });
     //custom
-    
+
     uploader.result.listen((result) {
       print(
           "id: ${result.taskId}, status: ${result.status}, response: ${result.response}, statusCode: ${result.statusCode}, headers: ${result.headers}");
@@ -172,8 +172,10 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   getCurrentTime() async {
     print('call getCurrentTime function');
     await FirebaseDatabase.instance.ref("currenttime").get().then((value) {
-      print(Timestamp.fromMicrosecondsSinceEpoch(int.parse(value.value.toString())).toDate());
-      
+      print(Timestamp.fromMicrosecondsSinceEpoch(
+              int.parse(value.value.toString()))
+          .toDate());
+
       currentTime = value.child("time").value.toString();
       print('CURRENT TIME in get current time function : $currentTime');
       print(
@@ -271,8 +273,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     print("call uploadDataWithBackgroundService function");
     String timeNow = "";
 
-    DatabaseReference dbRef =
-        FirebaseDatabase.instance.ref("currenttime");
+    DatabaseReference dbRef = FirebaseDatabase.instance.ref("currenttime");
     dbRef.once().then((value) async {
       print("got ref");
 
@@ -641,9 +642,9 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                     print("hhhh " +
                                         snapshot.data!.docs[index]['time']
                                             .toString());
-                                    print (DateTime.parse(snapshot
-                                                    .data!.docs[index]['time']
-                                                    .toString()));   
+                                    print(DateTime.parse(snapshot
+                                        .data!.docs[index]['time']
+                                        .toString()));
                                     int daysDifference = DateTime.now()
                                         .difference(DateTime.parse(snapshot
                                                     .data!.docs[index]['time']
@@ -2029,7 +2030,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             backgroundColor: Colors.white,
             elevation: 0,
             title: Text(
-              "Remove Message",
+              AppLocalizations.of(context)!.remove_Message,
               style: TextStyle(
                 color: Colors.black,
               ),
@@ -2039,7 +2040,8 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  "Are you sure to remove this message ?",
+                  AppLocalizations.of(context)!
+                      .are_you_sure_to_remove_this_message,
                   style: TextStyle(fontSize: 13, color: Colors.red.shade800),
                 ),
                 SizedBox(
@@ -2060,7 +2062,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                           ),
                           child: Center(
                             child: Text(
-                              "Cancel",
+                              AppLocalizations.of(context)!.cancel,
                               style: TextStyle(
                                   fontSize: 15,
                                   color: Colors.black,
@@ -2091,7 +2093,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                           ),
                           child: Center(
                             child: Text(
-                              "Remove",
+                              AppLocalizations.of(context)!.remove,
                               style: TextStyle(
                                   fontSize: 15,
                                   color: Colors.white,

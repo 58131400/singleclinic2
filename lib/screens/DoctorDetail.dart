@@ -11,6 +11,7 @@ import 'package:singleclinic/screens/ChatScreen.dart';
 import 'package:singleclinic/screens/LoginScreen.dart';
 import 'package:singleclinic/screens/ReviewScreen.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../main.dart';
 
@@ -234,7 +235,6 @@ class _DoctorDetailsState extends State<DoctorDetails> {
                                     : "assets/doctordetails/star_unactive.png",
                                 height: 12,
                                 width: 12,
-
                               ),
                               SizedBox(
                                 width: 5,
@@ -282,7 +282,7 @@ class _DoctorDetailsState extends State<DoctorDetails> {
                             height: 2,
                           ),
                           Text(
-                            "See all reviews",
+                            AppLocalizations.of(context)!.see_all_reviews,
                             style:
                                 TextStyle(color: LIGHT_GREY_TEXT, fontSize: 10),
                           ),
@@ -369,7 +369,7 @@ class _DoctorDetailsState extends State<DoctorDetails> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            WORKING_TIME,
+            AppLocalizations.of(context)!.working_time,
             style: TextStyle(fontWeight: FontWeight.w700, fontSize: 19),
           ),
           GridView.builder(
@@ -432,7 +432,7 @@ class _DoctorDetailsState extends State<DoctorDetails> {
             height: 15,
           ),
           Text(
-            SERVICES,
+            AppLocalizations.of(context)!.services,
             style: TextStyle(fontWeight: FontWeight.w700, fontSize: 19),
           ),
           SizedBox(
@@ -506,8 +506,14 @@ class _DoctorDetailsState extends State<DoctorDetails> {
                 ),
                 child: Center(
                   child: Text(
-                    isLoggedIn ? BOOK_APPOINTMENT : LOGIN_TO_BOOK_APPOINTMENT,
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17, color: WHITE),
+                    isLoggedIn
+                        ? AppLocalizations.of(context)!.book_appointment
+                        : AppLocalizations.of(context)!
+                            .login_to_book_appointment,
+                    style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 17,
+                        color: WHITE),
                   ),
                 ),
               ),
