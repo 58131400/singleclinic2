@@ -166,12 +166,21 @@ class _ChatListState extends State<ChatList> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    isSearchClicked
-                        ? AppLocalizations.of(context)!.search
-                        : AppLocalizations.of(context)!.chat,
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
-                  ),
+                  isSearchClicked
+                      ? Text(AppLocalizations.of(context)!.search,
+                          style: Theme.of(context)
+                              .textTheme
+                              .apply(bodyColor: NAVY_BLUE)
+                              .titleLarge)
+                      : Row(children: [
+                          Icon(Icons.question_answer,
+                              size: 25, color: NAVY_BLUE),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Text(AppLocalizations.of(context)!.chat.toUpperCase(),
+                              style: Theme.of(context).textTheme.titleLarge)
+                        ]),
                   IconButton(
                     icon: isSearchClicked
                         ? Icon(

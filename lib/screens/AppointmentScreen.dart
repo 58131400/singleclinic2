@@ -71,8 +71,20 @@ class _AppointmentScreenState extends State<AppointmentScreen>
           bottom: TabBar(
             controller: tabController,
             tabs: [
-              Text(AppLocalizations.of(context)!.upcoming.toUpperCase()),
-              Text(AppLocalizations.of(context)!.past.toUpperCase()),
+              Text(
+                AppLocalizations.of(context)!.upcoming.toUpperCase(),
+                style: Theme.of(context)
+                    .textTheme
+                    .apply(bodyColor: NAVY_BLUE)
+                    .titleSmall,
+              ),
+              Text(
+                AppLocalizations.of(context)!.past.toUpperCase(),
+                style: Theme.of(context)
+                    .textTheme
+                    .apply(bodyColor: NAVY_BLUE)
+                    .titleSmall,
+              ),
             ],
             labelPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
             labelColor: NAVY_BLUE,
@@ -172,11 +184,19 @@ class _AppointmentScreenState extends State<AppointmentScreen>
             Padding(
               padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
+                  Icon(
+                    Icons.free_cancellation,
+                    size: 25,
+                    color: NAVY_BLUE,
+                  ),
+                  SizedBox(
+                    width: 5,
+                  ),
                   Text(
-                    AppLocalizations.of(context)!.my_appointment,
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+                    AppLocalizations.of(context)!.my_appointment.toUpperCase(),
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
                 ],
               ),

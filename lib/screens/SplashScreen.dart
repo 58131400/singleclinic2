@@ -49,7 +49,8 @@ class _SplashScreenState extends State<SplashScreen> {
               MaterialPageRoute(builder: (context) => TabBarScreen()),
             );
           });
-        }
+        } else
+          print(jsonResponse);
       }
     });
   }
