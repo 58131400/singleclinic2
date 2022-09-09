@@ -100,12 +100,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
+                Icon(
+                  Icons.settings_applications,
+                  size: 25,
+                  color: NAVY_BLUE,
+                ),
+                SizedBox(
+                  width: 5,
+                ),
                 Text(
-                  AppLocalizations.of(context)!.setting,
-                  style: TextStyle(
-                      color: BLACK, fontSize: 22, fontWeight: FontWeight.w700),
+                  AppLocalizations.of(context)!.setting.toUpperCase(),
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
               ],
             ),
@@ -221,13 +228,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                name != null ? name!.toUpperCase() : "Sign In",
-                style: TextStyle(
-                    color: NAVY_BLUE,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700),
-              ),
+              Text(name != null ? name!.toUpperCase() : "Sign In",
+                  style: Theme.of(context).textTheme.bodyText1),
               SizedBox(
                 height: 2,
               ),
@@ -245,10 +247,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         Text(
                           email!,
-                          style: TextStyle(
-                              color: LIGHT_GREY_TEXT,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700),
+                          style: Theme.of(context).textTheme.bodyText1,
                         ),
                       ],
                     ),
@@ -263,17 +262,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       AppLocalizations.of(context)!.are_you_sure_to_log_out);
                 },
                 child: Text(
-                  name == null
-                      ? AppLocalizations.of(context)!.profile
-                      : AppLocalizations.of(context)!.log_out,
-                  style: TextStyle(
-                      color: name == null ? LIGHT_GREY_TEXT : BLACK,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      decoration: name == null
-                          ? TextDecoration.none
-                          : TextDecoration.underline),
-                ),
+                    name == null
+                        ? AppLocalizations.of(context)!.profile
+                        : AppLocalizations.of(context)!.log_out,
+                    style: Theme.of(context)
+                        .textTheme
+                        .apply(
+                            decoration: name == null
+                                ? TextDecoration.none
+                                : TextDecoration.underline)
+                        .bodyText1),
               ),
             ],
           )
@@ -295,14 +293,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             Text(
               AppLocalizations.of(context)!.language,
-              style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
+              style: Theme.of(context).textTheme.headline5,
             ),
             PopupMenuButton(
               child: Row(
                 children: [
-                  Text(selectedLanguage == "en"
-                      ? AppLocalizations.of(context)!.language_en
-                      : AppLocalizations.of(context)!.language_vi),
+                  Text(
+                    selectedLanguage == "en"
+                        ? AppLocalizations.of(context)!.language_en
+                        : AppLocalizations.of(context)!.language_vi,
+                    style: Theme.of(context).textTheme.bodyText1,
+                  ),
                   SizedBox(
                     width: 15,
                   ),
@@ -397,7 +398,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 Text(
                   list[index].title,
-                  style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
+                  style: Theme.of(context).textTheme.headline5,
                 ),
               ],
             ),

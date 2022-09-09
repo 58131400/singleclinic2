@@ -18,8 +18,8 @@ import 'package:singleclinic/screens/SplashScreen.dart';
 import 'notificationTesting/notificationHelper.dart';
 
 FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
-//String SERVER_ADDRESS = "https://demo.freaktemplate.com/singleclinic";
-String SERVER_ADDRESS = "http://192.168.1.3/PHPScript";
+
+String SERVER_ADDRESS = "http://192.168.1.98:9000/PHPScript";
 MyNotificationHelper notificationHelper = MyNotificationHelper();
 final String serverToken =
     // "AAAAO2Co7iU:APA91bHzp5j7Do_A_LAFUpwLzqNESEYUUC_At6nLZoB6yH1wmWFsfsvKjOplY9cYH-pJzpVfYTZl68oFkip9F-VlXqr4oB-NA9QuJ1ZMBLPLfXh_mn4taaQR7cXEtw1j2Ryqka2kAlqy";
@@ -92,46 +92,46 @@ class _SingleClinicState extends State<SingleClinic> {
       home: SplashScreen(),
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-          textTheme: GoogleFonts.robotoTextTheme(Theme.of(context).textTheme),
-          // textTheme: TextTheme(
-
-          // headline1: TextStyle(
-          //   fontFamily: "Avir",
-          // ),
-          // headline2: TextStyle(
-          //   fontFamily: "Avir",
-          // ),
-          // headline3: TextStyle(
-          //   fontFamily: "Avir",
-          // ),
-          // headline4: TextStyle(
-          //   fontFamily: "Avir",
-          // ),
-          // headline5: TextStyle(
-          //   fontFamily: "Avir",
-          // ),
-          // headline6: TextStyle(
-          //   fontFamily: "Avir",
-          // ),
-          // subtitle1: TextStyle(
-          //   fontFamily: "Avir",
-          // ),
-          // subtitle2: TextStyle(
-          //   fontFamily: "Avir",
-          // ),
-          // caption: TextStyle(
-          //   fontFamily: "Avir",
-          // ),
-          // bodyText1: TextStyle(
-          //   fontFamily: "Avir",
-          // ),
-          // bodyText2: TextStyle(
-          //   fontFamily: "Avir",
-          // ),
-          // button: TextStyle(
-          //   fontFamily: "Avir",
-          // ),
-
+          textTheme: GoogleFonts.robotoTextTheme(
+            TextTheme(
+              headline1: TextStyle(
+                color: NAVY_BLUE,
+              ),
+              headline2: TextStyle(
+                color: NAVY_BLUE,
+              ),
+              headline3: TextStyle(
+                color: NAVY_BLUE,
+              ),
+              headline4: TextStyle(
+                color: NAVY_BLUE,
+              ),
+              headline5: TextStyle(
+                color: NAVY_BLUE,
+              ),
+              headline6: TextStyle(
+                color: NAVY_BLUE,
+              ),
+              subtitle1: TextStyle(
+                color: NAVY_BLUE,
+              ),
+              subtitle2: TextStyle(
+                color: NAVY_BLUE,
+              ),
+              caption: TextStyle(
+                color: NAVY_BLUE,
+              ),
+              bodyText1: TextStyle(
+                color: LIGHT_GREY_TEXT,
+              ),
+              bodyText2: TextStyle(
+                color: LIGHT_GREY_TEXT,
+              ),
+              button: TextStyle(
+                color: NAVY_BLUE,
+              ),
+            ),
+          ),
           primaryColor: NAVY_BLUE,
           colorScheme: ColorScheme.fromSwatch()
               .copyWith(secondary: LIME, primary: NAVY_BLUE)),

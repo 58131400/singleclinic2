@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -135,10 +137,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(
-                  Icons.home_rounded,
-                  size: 25,
-                  color: NAVY_BLUE,
+                Row(
+                  children: [
+                    Icon(
+                      Icons.home_rounded,
+                      size: 25,
+                      color: NAVY_BLUE,
+                    ),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Text(AppLocalizations.of(context)!.home.toUpperCase(),
+                        style: Theme.of(context).textTheme.titleLarge)
+                    // fontSize: 22, fontWeight: FontWeight.w700)
+                  ],
                 ),
                 InkWell(
                   onTap: () {
@@ -205,33 +217,26 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            AppLocalizations.of(context)!.book,
-                            style: TextStyle(
-                                fontFamily: "Avir",
-                                fontSize: 17,
-                                color: WHITE,
-                                fontWeight: FontWeight.w600),
-                          ),
-                          Text(
-                            AppLocalizations.of(context)!.appointment,
-                            style: TextStyle(
-                                fontFamily: "Avir",
-                                fontSize: 17,
-                                color: WHITE,
-                                fontWeight: FontWeight.w600),
-                          ),
+                          Text(AppLocalizations.of(context)!.book,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .apply(bodyColor: Colors.white)
+                                  .headline6),
+                          Text(AppLocalizations.of(context)!.appointment,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .apply(bodyColor: Colors.white)
+                                  .headline6),
                           SizedBox(
                             height: 10,
                           ),
                           Text(
-                            AppLocalizations.of(context)!.quickly_create_files,
-                            style: TextStyle(
-                              fontFamily: "Avir",
-                              fontSize: 10,
-                              color: WHITE,
-                            ),
-                          ),
+                              AppLocalizations.of(context)!
+                                  .quickly_create_files,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .apply(bodyColor: Colors.white)
+                                  .bodyText2),
                           SizedBox(
                             height: 20,
                           ),
@@ -248,18 +253,16 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                 ),
                                 Center(
                                   child: Text(
-                                    isLoggedIn
-                                        ? AppLocalizations.of(context)!
-                                            .bookappointment
-                                        : AppLocalizations.of(context)!
-                                            .login_to_book_appointment,
-                                    style: TextStyle(
-                                        fontFamily: "Avir",
-                                        fontSize: 9,
-                                        color: LIME,
-                                        fontWeight: FontWeight.w700),
-                                  ),
-                                ),
+                                      isLoggedIn
+                                          ? AppLocalizations.of(context)!
+                                              .bookappointment
+                                          : AppLocalizations.of(context)!
+                                              .login_to_book_appointment,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .apply(bodyColor: NAVY_BLUE)
+                                          .bodySmall),
+                                )
                               ],
                             ),
                           )
@@ -276,27 +279,21 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  AppLocalizations.of(context)!.doctor_list,
-                  style: TextStyle(
-                      fontFamily: "Avir",
-                      color: BLACK,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700),
-                ),
+                Text(AppLocalizations.of(context)!.doctor_list,
+                    style: Theme.of(context)
+                        .textTheme
+                        .apply(bodyColor: NAVY_BLUE)
+                        .titleMedium),
                 InkWell(
                   onTap: () {
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) => DoctorList()));
                   },
-                  child: Text(
-                    AppLocalizations.of(context)!.see_all,
-                    style: TextStyle(
-                        fontFamily: "Avir",
-                        color: NAVY_BLUE,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700),
-                  ),
+                  child: Text(AppLocalizations.of(context)!.see_all,
+                      style: Theme.of(context)
+                          .textTheme
+                          .apply(bodyColor: NAVY_BLUE)
+                          .titleMedium),
                 ),
               ],
             ),
