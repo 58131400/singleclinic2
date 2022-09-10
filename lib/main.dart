@@ -94,46 +94,7 @@ class _SingleClinicState extends State<SingleClinic> {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
           iconTheme: IconThemeData(color: NAVY_BLUE),
-          textTheme: GoogleFonts.robotoTextTheme(
-            TextTheme(
-              headline1: TextStyle(
-                color: NAVY_BLUE,
-              ),
-              headline2: TextStyle(
-                color: NAVY_BLUE,
-              ),
-              headline3: TextStyle(
-                color: NAVY_BLUE,
-              ),
-              headline4: TextStyle(
-                color: NAVY_BLUE,
-              ),
-              headline5: TextStyle(
-                color: NAVY_BLUE,
-              ),
-              headline6: TextStyle(
-                color: NAVY_BLUE,
-              ),
-              subtitle1: TextStyle(
-                color: NAVY_BLUE,
-              ),
-              subtitle2: TextStyle(
-                color: NAVY_BLUE,
-              ),
-              caption: TextStyle(
-                color: NAVY_BLUE,
-              ),
-              bodyText1: TextStyle(
-                color: LIGHT_GREY_TEXT,
-              ),
-              bodyText2: TextStyle(
-                color: LIGHT_GREY_TEXT,
-              ),
-              button: TextStyle(
-                color: NAVY_BLUE,
-              ),
-            ),
-          ),
+          textTheme: GoogleFonts.robotoTextTheme(Theme.of(context).textTheme),
           primaryColor: NAVY_BLUE,
           colorScheme: ColorScheme.fromSwatch()
               .copyWith(secondary: LIME, primary: NAVY_BLUE)),

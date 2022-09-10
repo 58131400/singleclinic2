@@ -80,13 +80,8 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(
                 height: 30,
               ),
-              Text(
-                AppLocalizations.of(context)!.email_address,
-                style: TextStyle(
-                  fontSize: 19,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+              Text(AppLocalizations.of(context)!.email_address,
+                  style: Theme.of(context).textTheme.headline6),
               TextFormField(
                 validator: (val) {
                   if (!EmailValidator.validate(email)) {
@@ -98,9 +93,19 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: TextStyle(
                     color: LIGHT_GREY_TEXT,
                     fontSize: 14,
-                    fontWeight: FontWeight.w700),
+                    fontWeight: FontWeight.bold),
                 decoration: InputDecoration(
-                  contentPadding: EdgeInsets.fromLTRB(0, 5, 0, 5),
+                  isDense: true,
+                  prefixIcon: Icon(
+                    Icons.mail_outline,
+                  ),
+                  prefixIconColor: NAVY_BLUE,
+                  hintText: "abc@xyz.com",
+                  hintStyle: Theme.of(context)
+                      .textTheme
+                      .apply(bodyColor: LIGHT_GREY_TEXT)
+                      .bodyText1,
+                  contentPadding: EdgeInsets.fromLTRB(0, 15, 0, 0),
                   isCollapsed: true,
                   border: UnderlineInputBorder(
                       borderSide:
@@ -123,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               Text(
                 AppLocalizations.of(context)!.password,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.headline6,
               ),
               TextFormField(
                 validator: (val) {
@@ -139,8 +144,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     fontWeight: FontWeight.bold),
                 obscureText: true,
                 decoration: InputDecoration(
-                  contentPadding: EdgeInsets.fromLTRB(0, 5, 0, 5),
                   isCollapsed: true,
+                  isDense: true,
+                  prefixIcon: Icon(
+                    Icons.lock_outline,
+                  ),
+                  prefixIconColor: NAVY_BLUE,
+                  hintText: "*********",
+                  hintStyle: Theme.of(context)
+                      .textTheme
+                      .apply(bodyColor: LIGHT_GREY_TEXT)
+                      .bodyText1,
+                  contentPadding: EdgeInsets.fromLTRB(0, 15, 0, 0),
                   border: UnderlineInputBorder(
                       borderSide:
                           BorderSide(color: LIGHT_GREY_TEXT, width: 0.5)),
