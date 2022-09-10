@@ -12,6 +12,7 @@ import 'package:singleclinic/screens/DepartmentScreen.dart';
 import 'package:singleclinic/screens/FacilitiesScreen.dart';
 import 'package:singleclinic/screens/GalleryScreen.dart';
 import 'package:singleclinic/screens/LoginScreen.dart';
+import 'package:singleclinic/screens/SignUpScreen.dart';
 import 'package:singleclinic/screens/SubcriptionList.dart';
 import 'package:singleclinic/screens/SubscriptionPlansScreen.dart';
 import 'package:singleclinic/screens/TermAndConditions.dart';
@@ -32,54 +33,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String? imageUrl;
   String? name, email;
   List<OptionsList> list = [];
-  String selectedLanguage = "en";
+  String? selectedLanguage = "en";
 
   @override
   void initState() {
-    SharedPreferences.getInstance().then((value) {
-      setState(() {
-        imageUrl = value.getString("profile_pic");
-        name = value.getString("name");
-        email = value.getString("email");
-        selectedLanguage = value.getString("language_code") ?? 'en';
-
-        if (selectedLanguage == 'en') {
-          list.add(OptionsList(
-            MY_SUBCRIPTIONS,
-            [MY_SUBCRIPTIONS, APPOINTMENT_HISTORY, SUBSCRIPTION_PLANS],
-            [SubcriptionList(), AppointmentScreen(), SubscriptionPlansScreen()],
-          ));
-          list.add(OptionsList(MORE, [DEPARTMENTS, FACILITIES, GALLERY],
-              [DepartmentScreen(), FacilitiesScreen(), GalleryScreen()]));
-          list.add(OptionsList(
-            CONTACT_DETAILS,
-            [TERM_AND_CONDITION, ABOUT_US, CONTACT_US],
-            [TermAndConditions(), AboutUs(), ContactUsScreen()],
-          ));
-        }
-        if (selectedLanguage == 'vi') {
-          list.add(OptionsList(
-            "Đăng kí của tôi",
-            ["Đăng kí", "Lịch hẹn", "Kế hoạch"],
-            [SubcriptionList(), AppointmentScreen(), SubscriptionPlansScreen()],
-          ));
-          list.add(OptionsList("Khác", ["Khoa", "Cơ sở", "Trưng bày"],
-              [DepartmentScreen(), FacilitiesScreen(), GalleryScreen()]));
-          list.add(OptionsList(
-            "Chi tiết liên lạc",
-            ["Điều khoản & quy định", "Về chúng tôi", "Liên hệ"],
-            [TermAndConditions(), AboutUs(), ContactUsScreen()],
-          ));
-        }
-      });
-    });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     print("go to setting screen");
-
     return SafeArea(
       child: Scaffold(
         backgroundColor: LIGHT_GREY_SCREEN_BG,
@@ -123,164 +86,326 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   body(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [profileCard(), chooseLanguage(context), optionsList()],
+    return SingleChildScrollView(
+        child: FutureBuilder(
+            future: loadInfo(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                print(snapshot.connectionState);
+                return CircularProgressIndicator();
+              } else if (snapshot.connectionState == ConnectionState.done) {
+                print(snapshot.connectionState);
+                return Column(
+                  children: [
+                    profileCard(context),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(15, 15, 15, 0),
+                      child: Column(
+                        children: [
+                          chooseLanguage(context),
+                          optionsList(context)
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              } else {
+                print(snapshot.connectionState);
+              }
+              return Container();
+            }));
+  }
+
+  Future loadInfo() async {
+    if (list.isNotEmpty) list.clear();
+    var value = await SharedPreferences.getInstance();
+
+    print('load info');
+    imageUrl = value.getString("profile_pic");
+    print('imageUrl : $imageUrl');
+    name = value.getString("name");
+    email = value.getString("email");
+    print('email : $email');
+    selectedLanguage = value.getString("language_code") ?? 'en';
+
+    list.add(OptionsList(MY_SUBCRIPTIONS, [
+      AppLocalizations.of(context)!.my_subcriptions,
+      AppLocalizations.of(context)!.appointment_history,
+      AppLocalizations.of(context)!.subscription_plans
+    ], [
+      SubcriptionList(),
+      AppointmentScreen(),
+      SubscriptionPlansScreen()
+    ], [
+      Icon(Icons.shopping_cart),
+      Icon(Icons.edit_calendar_rounded),
+      Icon(
+        Icons.add_shopping_cart,
+      ),
+    ]));
+    list.add(OptionsList(MORE, [
+      AppLocalizations.of(context)!.departments,
+      AppLocalizations.of(context)!.facilities,
+      AppLocalizations.of(context)!.gallery
+    ], [
+      DepartmentScreen(),
+      FacilitiesScreen(),
+      GalleryScreen()
+    ], [
+      Icon(
+        Icons.medical_services,
+      ),
+      Icon(
+        Icons.apartment,
+      ),
+      Icon(
+        Icons.collections,
+      ),
+    ]));
+    list.add(OptionsList(CONTACT_DETAILS, [
+      AppLocalizations.of(context)!.term_and_condition,
+      AppLocalizations.of(context)!.about_us,
+      AppLocalizations.of(context)!.contact_us
+    ], [
+      TermAndConditions(),
+      AboutUs(),
+      ContactUsScreen()
+    ], [
+      Icon(
+        Icons.privacy_tip,
+      ),
+      Icon(
+        Icons.info,
+      ),
+      Icon(
+        Icons.help,
+      ),
+    ]));
+  }
+
+  profileCard(BuildContext context) {
+    return Container(
+      color: NAVY_BLUE,
+      child: InkWell(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    height: 110,
+                    width: 110,
+                    child: imageUrl == null
+                        ? Container(
+                            child: Image.asset(
+                            "assets/appicon.png",
+                            fit: BoxFit.scaleDown,
+                          ))
+                        : CachedNetworkImage(
+                            fit: BoxFit.cover,
+                            imageUrl: imageUrl!,
+                            progressIndicatorBuilder:
+                                (context, url, downloadProgress) => Container(
+                                    child: Center(
+                                        child: Icon(
+                              Icons.account_circle,
+                              size: 110,
+                              color: LIGHT_GREY_TEXT,
+                            ))),
+                            errorWidget: (context, url, error) => Container(
+                              child: Center(
+                                child: Icon(
+                                  Icons.account_circle,
+                                  size: 110,
+                                  color: LIGHT_GREY_TEXT,
+                                ),
+                              ),
+                            ),
+                          ),
+                  ),
+                ),
+                Container(
+                  height: 110,
+                  width: 110,
+                  child: InkWell(
+                    onTap: () {
+                      getImage();
+                    },
+                    child: Align(
+                      alignment: Alignment.bottomRight,
+                      child: InkWell(
+                        onTap: () async {
+                          bool check = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => UpdateProfileScreen()));
+                          if (check) {
+                            await SharedPreferences.getInstance().then((value) {
+                              setState(() {
+                                imageUrl = value.getString("profile_pic");
+                                name = value.getString("name");
+                              });
+                            });
+                          }
+                        },
+                        child: name != null
+                            ? Image.asset(
+                                "assets/loginregister/edit.png",
+                                height: 35,
+                                width: 35,
+                                fit: BoxFit.fill,
+                              )
+                            : Container(),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              width: 15,
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                    child: name != null
+                        ? Text(name!.toUpperCase(),
+                            style: Theme.of(context)
+                                .textTheme
+                                .apply(bodyColor: Colors.white)
+                                .bodyText1)
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              TextButton(
+                                  style: TextButton.styleFrom(
+                                    fixedSize: Size.fromWidth(100),
+                                    backgroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(20)),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                LoginScreen()));
+                                  },
+                                  child: Row(
+                                    children: [
+                                      Text(AppLocalizations.of(context)!.signIn,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .apply(bodyColor: NAVY_BLUE)
+                                              .bodyText1),
+                                      SizedBox(
+                                        width: 5,
+                                      ),
+                                      Icon(
+                                        Icons.login,
+                                        color: NAVY_BLUE,
+                                      )
+                                    ],
+                                  )),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              TextButton(
+                                  style: TextButton.styleFrom(
+                                    fixedSize: Size.fromWidth(100),
+                                    backgroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(20)),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                SignUpScreen()));
+                                  },
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                          AppLocalizations.of(context)!
+                                              .register,
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .apply(bodyColor: NAVY_BLUE)
+                                              .bodyText1),
+                                      SizedBox(
+                                        width: 5,
+                                      ),
+                                      Icon(
+                                        Icons.person_add,
+                                        color: NAVY_BLUE,
+                                      ),
+                                    ],
+                                  )),
+                            ],
+                          )),
+                SizedBox(
+                  height: 2,
+                ),
+                name == null
+                    ? Container()
+                    : Row(
+                        children: [
+                          Icon(
+                            Icons.email_outlined,
+                            color: LIGHT_GREY_TEXT,
+                            size: 12,
+                          ),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Text(
+                            email!,
+                            style: Theme.of(context).textTheme.bodyText1,
+                          ),
+                        ],
+                      ),
+                name == null
+                    ? Container()
+                    : Column(
+                        children: [
+                          SizedBox(
+                            height: 8,
+                          ),
+                          InkWell(
+                            onTap: () {
+                              messageDialog(
+                                  ALERT,
+                                  AppLocalizations.of(context)!
+                                      .are_you_sure_to_log_out);
+                            },
+                            child: Text(
+                                name == null
+                                    ? AppLocalizations.of(context)!.profile
+                                    : AppLocalizations.of(context)!.log_out,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .apply(
+                                        decoration: name == null
+                                            ? TextDecoration.none
+                                            : TextDecoration.underline)
+                                    .bodyText1),
+                          ),
+                        ],
+                      ),
+              ],
+            )
+          ],
         ),
       ),
     );
   }
 
-  profileCard() {
-    return InkWell(
-      borderRadius: BorderRadius.circular(20),
-      onTap: () {
-        if (name == null) {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => LoginScreen()));
-        }
-      },
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(70),
-                child: Container(
-                  height: 110,
-                  width: 110,
-                  child: imageUrl == null
-                      ? CircleAvatar(
-                          backgroundColor: Colors.transparent,
-                          child: Icon(
-                            Icons.account_circle,
-                            size: 110,
-                            color: LIGHT_GREY_TEXT,
-                          ),
-                        )
-                      : CachedNetworkImage(
-                          fit: BoxFit.cover,
-                          imageUrl: imageUrl!,
-                          progressIndicatorBuilder:
-                              (context, url, downloadProgress) => Container(
-                                  child: Center(
-                                      child: Icon(
-                            Icons.account_circle,
-                            size: 110,
-                            color: LIGHT_GREY_TEXT,
-                          ))),
-                          errorWidget: (context, url, error) => Container(
-                            child: Center(
-                              child: Icon(
-                                Icons.account_circle,
-                                size: 110,
-                                color: LIGHT_GREY_TEXT,
-                              ),
-                            ),
-                          ),
-                        ),
-                ),
-              ),
-              Container(
-                height: 110,
-                width: 110,
-                child: InkWell(
-                  onTap: () {
-                    getImage();
-                  },
-                  child: Align(
-                    alignment: Alignment.bottomRight,
-                    child: InkWell(
-                      onTap: () async {
-                        bool check = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => UpdateProfileScreen()));
-                        if (check) {
-                          await SharedPreferences.getInstance().then((value) {
-                            setState(() {
-                              imageUrl = value.getString("profile_pic");
-                              name = value.getString("name");
-                            });
-                          });
-                        }
-                      },
-                      child: name != null
-                          ? Image.asset(
-                              "assets/loginregister/edit.png",
-                              height: 35,
-                              width: 35,
-                              fit: BoxFit.fill,
-                            )
-                          : Container(),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(
-            width: 15,
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(name != null ? name!.toUpperCase() : "Sign In",
-                  style: Theme.of(context).textTheme.bodyText1),
-              SizedBox(
-                height: 2,
-              ),
-              name == null
-                  ? Container()
-                  : Row(
-                      children: [
-                        Icon(
-                          Icons.email_outlined,
-                          color: LIGHT_GREY_TEXT,
-                          size: 12,
-                        ),
-                        SizedBox(
-                          width: 5,
-                        ),
-                        Text(
-                          email!,
-                          style: Theme.of(context).textTheme.bodyText1,
-                        ),
-                      ],
-                    ),
-              name == null
-                  ? Container()
-                  : SizedBox(
-                      height: 8,
-                    ),
-              InkWell(
-                onTap: () {
-                  messageDialog(ALERT,
-                      AppLocalizations.of(context)!.are_you_sure_to_log_out);
-                },
-                child: Text(
-                    name == null
-                        ? AppLocalizations.of(context)!.profile
-                        : AppLocalizations.of(context)!.log_out,
-                    style: Theme.of(context)
-                        .textTheme
-                        .apply(
-                            decoration: name == null
-                                ? TextDecoration.none
-                                : TextDecoration.underline)
-                        .bodyText1),
-              ),
-            ],
-          )
-        ],
-      ),
-    );
-  }
-
-  Future<dynamic> getUsedLanguage() async {}
   chooseLanguage(BuildContext context) {
     print('selected language2: $selectedLanguage');
     return Column(
@@ -320,7 +445,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     value.setString("language_code", item.name);
                     selectedLanguage = item.name;
                     SingleClinic.setLocale(context,
-                        Locale.fromSubtags(languageCode: selectedLanguage));
+                        Locale.fromSubtags(languageCode: selectedLanguage!));
                     Navigator.popUntil(context, (route) => route.isFirst);
                     Navigator.pushReplacement(
                         context,
@@ -345,45 +470,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ],
         ),
-        Divider(
-          color: LIGHT_GREY_TEXT,
-        ),
       ],
     );
   }
 
-  optionsList() {
-    setState(() {
-      list.clear();
-      if (selectedLanguage == 'en') {
-          list.add(OptionsList(
-            MY_SUBCRIPTIONS,
-            [MY_SUBCRIPTIONS, APPOINTMENT_HISTORY, SUBSCRIPTION_PLANS],
-            [SubcriptionList(), AppointmentScreen(), SubscriptionPlansScreen()],
-          ));
-          list.add(OptionsList(MORE, [DEPARTMENTS, FACILITIES, GALLERY],
-              [DepartmentScreen(), FacilitiesScreen(), GalleryScreen()]));
-          list.add(OptionsList(
-            CONTACT_DETAILS,
-            [TERM_AND_CONDITION, ABOUT_US, CONTACT_US],
-            [TermAndConditions(), AboutUs(), ContactUsScreen()],
-          ));
-        }
-        if (selectedLanguage == 'vi') {
-          list.add(OptionsList(
-            "Đăng kí của tôi",
-            ["Đăng kí", "Lịch hẹn", "Kế hoạch"],
-            [SubcriptionList(), AppointmentScreen(), SubscriptionPlansScreen()],
-          ));
-          list.add(OptionsList("Khác", ["Khoa", "Cơ sở", "Trưng bày"],
-              [DepartmentScreen(), FacilitiesScreen(), GalleryScreen()]));
-          list.add(OptionsList(
-            "Chi tiết liên lạc",
-            ["Điều khoản & quy định", "Về chúng tôi", "Liên hệ"],
-            [TermAndConditions(), AboutUs(), ContactUsScreen()],
-          ));
-        }
-    });
+  optionsList(BuildContext context) {
     return ListView.builder(
       shrinkWrap: true,
       physics: ClampingScrollPhysics(),
@@ -402,8 +493,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ],
             ),
-            Divider(
-              color: LIGHT_GREY_TEXT,
+            SizedBox(
+              height: 5,
             ),
             ListView.builder(
               shrinkWrap: true,
@@ -425,12 +516,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            list[index].options[i].toString(),
-                            style: TextStyle(
-                                fontSize: 17,
-                                color: LIGHT_GREY_TEXT,
-                                fontWeight: FontWeight.w500),
+                          IntrinsicHeight(
+                            child: Row(
+                              children: [
+                                list[index].icons[i],
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                VerticalDivider(
+                                  color: Colors.grey,
+                                  width: 20,
+                                  thickness: 1,
+                                ),
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                Text(
+                                  list[index].options[i].toString(),
+                                  style: TextStyle(
+                                      fontSize: 17,
+                                      color: LIGHT_GREY_TEXT,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              ],
+                            ),
                           ),
                           Icon(
                             Icons.arrow_forward_ios,
@@ -519,6 +628,7 @@ class OptionsList {
   String title;
   List<String> options;
   List<Widget> screen;
+  List<Icon> icons;
 
-  OptionsList(this.title, this.options, this.screen);
+  OptionsList(this.title, this.options, this.screen, this.icons);
 }

@@ -1,6 +1,7 @@
 {
-    "language_vi":"Tiếng việt",
-    "language_en":"Tiếng anh",
+    "language_vi":"Tiếng Việt",
+    "language_en":"Tiếng Anh",
+    "signIn": "Đăng Nhập",
     "home":"Trang chủ",
     "language": "Ngôn ngữ",
     "book": "Chọn",
@@ -93,7 +94,7 @@
     "search_here_doctor_name": "Tìm tên bác sĩ...",
     "search_here_name": "Tìm tên..",
     "profile": "Hồ sơ",
-    "login_to_book_appointment": "Đăng nhập để đặt lịch hẹn",
+    "login_to_book_appointment": "Đăng nhập để đặt lịch",
     "login_to_add_subscription": "Đăng nhập để thêm đăng kí",
     "are_you_sure_to_log_out": "Bạn muốn đăng xuất?",
     "your_query_topic": "Chủ đề truy vấn của bạn",
@@ -149,5 +150,7 @@
       "are_you_sure_to_remove_this_message": "Bạn muốn xóa tin nhắn này chứ ?",
       "remove":"Xóa bỏ",
       "all_doctors":"Tất cả bác sĩ",
-      "see_all_reviews":"Xem tất cả đánh giá"
+      "see_all_reviews":"Xem tất cả đánh giá",
+          "welcome":"Xin Chào",
+    "welcome_message": "Đăng nhập hoặc tạo tài khoản miễn phí"
 }

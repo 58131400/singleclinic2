@@ -253,6 +253,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                 ),
                                 Center(
                                   child: Text(
+                                      textAlign: TextAlign.center,
                                       isLoggedIn
                                           ? AppLocalizations.of(context)!
                                               .bookappointment
@@ -260,7 +261,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                                               .login_to_book_appointment,
                                       style: Theme.of(context)
                                           .textTheme
-                                          .apply(bodyColor: NAVY_BLUE)
+                                          .apply(
+                                            bodyColor: NAVY_BLUE,
+                                          )
                                           .bodySmall),
                                 )
                               ],

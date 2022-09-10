@@ -481,29 +481,13 @@ class _ChatListState extends State<ChatList> {
   }
 
   loadChatList() async {
-<<<<<<< HEAD
-    ds = FirebaseDatabase.instance
-        .ref()
-        .child(uid.toString())
-        .onValue
-        .listen((event) {
-      print("chat list : ${event.snapshot.child('chatlist').value.toString()}");
-=======
     ds = FirebaseDatabase.instance.ref(uid.toString()).onValue.listen((event) {
       print("chat list : " + event.snapshot.child('chatlist').value.toString());
->>>>>>> 2beac1305e3dd21030594760b200000ab95ed3f1
       setState(() {
         chatListDetailsPA.clear();
         print("testing : " + "data retrievd from firebase");
       });
-<<<<<<< HEAD
-      DataSnapshot data = event.snapshot.child('chatList');
-      
-=======
-
->>>>>>> 2beac1305e3dd21030594760b200000ab95ed3f1
       try {
-        
         Map<dynamic, dynamic>.from(
                 event.snapshot.child('chatlist').value as Map<dynamic, dynamic>)
             .forEach((key, values) {

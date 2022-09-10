@@ -45,26 +45,24 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   header() {
-    return SafeArea(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  AppLocalizations.of(context)!.login,
-                  style: TextStyle(
-                      color: NAVY_BLUE,
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700),
-                ),
-              ],
+    return Container(
+      // height: MediaQuery.of(context).size.height * 0.5,
+      color: NAVY_BLUE,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              textAlign: TextAlign.center,
+              AppLocalizations.of(context)!.login,
+              style: Theme.of(context)
+                  .textTheme
+                  .apply(bodyColor: Colors.white)
+                  .titleLarge,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

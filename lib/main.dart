@@ -76,7 +76,8 @@ class _SingleClinicState extends State<SingleClinic> {
         setState(() {
           _locale = Locale(value.getString("language_code")!);
         });
-      }
+      } else
+        _locale = Locale(value.getString("en")!);
     });
   }
 
@@ -92,6 +93,7 @@ class _SingleClinicState extends State<SingleClinic> {
       home: SplashScreen(),
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+          iconTheme: IconThemeData(color: NAVY_BLUE),
           textTheme: GoogleFonts.robotoTextTheme(
             TextTheme(
               headline1: TextStyle(
