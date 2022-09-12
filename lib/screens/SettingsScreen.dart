@@ -185,7 +185,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   profileCard(BuildContext context) {
     return Container(
-      color: NAVY_BLUE,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: Colors.white,
+      ),
       child: InkWell(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -193,33 +196,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
+                  //borderRadius: BorderRadius.circular(20),
                   child: Container(
                     height: 110,
                     width: 110,
                     child: imageUrl == null
-                        ? Container(
+                        ? InkWell(
                             child: Image.asset(
                             "assets/appicon.png",
-                            fit: BoxFit.scaleDown,
-                          ))
-                        : CachedNetworkImage(
                             fit: BoxFit.cover,
-                            imageUrl: imageUrl!,
-                            progressIndicatorBuilder:
-                                (context, url, downloadProgress) => Container(
-                                    child: Center(
-                                        child: Icon(
-                              Icons.account_circle,
-                              size: 110,
-                              color: LIGHT_GREY_TEXT,
-                            ))),
-                            errorWidget: (context, url, error) => Container(
-                              child: Center(
-                                child: Icon(
-                                  Icons.account_circle,
-                                  size: 110,
-                                  color: LIGHT_GREY_TEXT,
+                          ))
+                        : InkWell(
+                            borderRadius: BorderRadius.circular(20),
+                            child: CachedNetworkImage(
+                              fit: BoxFit.cover,
+                              imageUrl: imageUrl!,
+                              progressIndicatorBuilder:
+                                  (context, url, downloadProgress) => Container(
+                                      child: Center(
+                                          child: Icon(
+                                Icons.account_circle,
+                                size: 110,
+                                color: LIGHT_GREY_TEXT,
+                              ))),
+                              errorWidget: (context, url, error) => Container(
+                                child: Center(
+                                  child: Icon(
+                                    Icons.account_circle,
+                                    size: 110,
+                                    color: LIGHT_GREY_TEXT,
+                                  ),
                                 ),
                               ),
                             ),
@@ -268,22 +274,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
               width: 15,
             ),
             Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
                     child: name != null
-                        ? Text(name!.toUpperCase(),
-                            style: Theme.of(context)
-                                .textTheme
-                                .apply(bodyColor: Colors.white)
-                                .bodyText1)
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        ? Row(
                             children: [
-                              TextButton(
-                                  style: TextButton.styleFrom(
-                                    fixedSize: Size.fromWidth(100),
-                                    backgroundColor: Colors.white,
+                              Icon(
+                                Icons.person,
+                                size: 16,
+                              ),
+                              SizedBox(
+                                width: 5,
+                              ),
+                              Text(name!.toUpperCase(),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .apply(bodyColor: LIGHT_GREY_TEXT)
+                                      .bodyText1),
+                            ],
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    shadowColor: Colors.white,
+                                    elevation: 10,
+                                    primary: NAVY_BLUE,
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(20)),
@@ -300,24 +318,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       Text(AppLocalizations.of(context)!.signIn,
                                           style: Theme.of(context)
                                               .textTheme
-                                              .apply(bodyColor: NAVY_BLUE)
-                                              .bodyText1),
+                                              .apply(bodyColor: Colors.white)
+                                              .bodyText2),
                                       SizedBox(
                                         width: 5,
                                       ),
-                                      Icon(
-                                        Icons.login,
-                                        color: NAVY_BLUE,
-                                      )
                                     ],
                                   )),
                               SizedBox(
-                                width: 10,
+                                width: 5,
                               ),
-                              TextButton(
-                                  style: TextButton.styleFrom(
-                                    fixedSize: Size.fromWidth(100),
-                                    backgroundColor: Colors.white,
+                              ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    //fixedSize: Size.fromWidth(115),
+                                    primary: LIGHT_GREY,
+                                    elevation: 1,
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(20)),
@@ -336,21 +351,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               .register,
                                           style: Theme.of(context)
                                               .textTheme
-                                              .apply(bodyColor: NAVY_BLUE)
-                                              .bodyText1),
+                                              .apply(bodyColor: LIGHT_GREY_TEXT)
+                                              .bodyText2),
                                       SizedBox(
                                         width: 5,
-                                      ),
-                                      Icon(
-                                        Icons.person_add,
-                                        color: NAVY_BLUE,
                                       ),
                                     ],
                                   )),
                             ],
                           )),
                 SizedBox(
-                  height: 2,
+                  height: 8,
                 ),
                 name == null
                     ? Container()
@@ -358,16 +369,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         children: [
                           Icon(
                             Icons.email_outlined,
-                            color: LIGHT_GREY_TEXT,
-                            size: 12,
+                            color: NAVY_BLUE,
+                            size: 16,
                           ),
                           SizedBox(
                             width: 5,
                           ),
-                          Text(
-                            email!,
-                            style: Theme.of(context).textTheme.bodyText1,
-                          ),
+                          Text(email!,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .apply(bodyColor: LIGHT_GREY_TEXT)
+                                  .bodyText1),
                         ],
                       ),
                 name == null
@@ -378,24 +390,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             height: 8,
                           ),
                           InkWell(
-                            onTap: () {
-                              messageDialog(
-                                  ALERT,
-                                  AppLocalizations.of(context)!
-                                      .are_you_sure_to_log_out);
-                            },
-                            child: Text(
-                                name == null
-                                    ? AppLocalizations.of(context)!.profile
-                                    : AppLocalizations.of(context)!.log_out,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .apply(
-                                        decoration: name == null
-                                            ? TextDecoration.none
-                                            : TextDecoration.underline)
-                                    .bodyText1),
-                          ),
+                              onTap: () {
+                                messageDialog(
+                                    ALERT,
+                                    AppLocalizations.of(context)!
+                                        .are_you_sure_to_log_out);
+                              },
+                              child: name == null
+                                  ? Text(AppLocalizations.of(context)!.profile,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .apply(
+                                              decoration: name == null
+                                                  ? TextDecoration.none
+                                                  : TextDecoration.underline,
+                                              bodyColor: LIGHT_GREY_TEXT)
+                                          .bodyText1)
+                                  : Row(
+                                      children: [
+                                        Icon(
+                                          Icons.logout,
+                                          size: 16,
+                                        ),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Text(
+                                            AppLocalizations.of(context)!
+                                                .log_out,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .apply(
+                                                    bodyColor: LIGHT_GREY_TEXT)
+                                                .bodyText1),
+                                      ],
+                                    )),
                         ],
                       ),
               ],
@@ -416,9 +445,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              AppLocalizations.of(context)!.language,
-              style: Theme.of(context).textTheme.headline5,
+            IntrinsicHeight(
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.language,
+                  ),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  VerticalDivider(
+                    color: Colors.grey,
+                    width: 20,
+                    thickness: 1,
+                  ),
+                  SizedBox(
+                    width: 5,
+                  ),
+                  Text(AppLocalizations.of(context)!.language,
+                      style: Theme.of(context)
+                          .textTheme
+                          .apply(bodyColor: LIGHT_GREY_TEXT)
+                          .bodyText1),
+                ],
+              ),
             ),
             PopupMenuButton(
               child: Row(
@@ -489,7 +539,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               children: [
                 Text(
                   list[index].title,
-                  style: Theme.of(context).textTheme.headline5,
+                  style: Theme.of(context).textTheme.headline6,
                 ),
               ],
             ),
@@ -531,13 +581,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 SizedBox(
                                   width: 5,
                                 ),
-                                Text(
-                                  list[index].options[i].toString(),
-                                  style: TextStyle(
-                                      fontSize: 17,
-                                      color: LIGHT_GREY_TEXT,
-                                      fontWeight: FontWeight.w500),
-                                ),
+                                Text(list[index].options[i].toString(),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .apply(bodyColor: LIGHT_GREY_TEXT)
+                                        .bodyText1),
                               ],
                             ),
                           ),

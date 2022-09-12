@@ -182,149 +182,212 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
           SizedBox(
             height: 5,
           ),
-          InkWell(
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        isLoggedIn ? BookAppointment() : LoginScreen(),
-                  ));
-            },
-            child: Stack(
-              children: [
-                Container(
-                  margin: EdgeInsets.all(14),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image.asset(
-                      "assets/homescreen/Book-appointment-banner.png",
-                      height: 180,
-                      width: MediaQuery.of(context).size.width,
-                      fit: BoxFit.fill,
-                    ),
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.all(10),
-                  height: 180,
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 20,
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(AppLocalizations.of(context)!.book,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .apply(bodyColor: Colors.white)
-                                  .headline6),
-                          Text(AppLocalizations.of(context)!.appointment,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .apply(bodyColor: Colors.white)
-                                  .headline6),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Text(
-                              AppLocalizations.of(context)!
-                                  .quickly_create_files,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .apply(bodyColor: Colors.white)
-                                  .bodyText2),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Container(
-                            width: isLoggedIn ? 120 : 130,
-                            height: 28,
-                            child: Stack(
-                              children: [
-                                Image.asset(
-                                  "assets/homescreen/bookappointment.png",
-                                  width: isLoggedIn ? 120 : 130,
-                                  height: 28,
-                                  fit: BoxFit.fill,
-                                ),
-                                Center(
-                                  child: Text(
-                                      textAlign: TextAlign.center,
-                                      isLoggedIn
-                                          ? AppLocalizations.of(context)!
-                                              .bookappointment
-                                          : AppLocalizations.of(context)!
-                                              .login_to_book_appointment,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .apply(
-                                            bodyColor: NAVY_BLUE,
-                                          )
-                                          .bodySmall),
-                                )
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    ],
-                  ),
-                )
-              ],
-            ),
+          buildTopBanner(),
+          buildListDoctor(),
+          // buildListService()
+        ],
+      ),
+    );
+  }
+
+  Column buildListService() {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(AppLocalizations.of(context)!.doctor_list,
+                  style: Theme.of(context).textTheme.headline6),
+              Container(
+                  child: TextButton(
+                style: TextButton.styleFrom(
+                    backgroundColor: LIME,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20))),
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => DoctorList()));
+                },
+                child: Icon(Icons.arrow_right_alt_outlined),
+              )),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(AppLocalizations.of(context)!.doctor_list,
-                    style: Theme.of(context)
-                        .textTheme
-                        .apply(bodyColor: NAVY_BLUE)
-                        .titleMedium),
-                InkWell(
-                  onTap: () {
+        ),
+        doctorsList == null
+            ? Container()
+            : ListView.builder(
+                shrinkWrap: true,
+                itemCount: myList.length,
+                physics: ClampingScrollPhysics(),
+                itemBuilder: (context, index) {
+                  return doctorDetailTile(
+                    imageUrl: myList[index].image!,
+                    name: myList[index].name!,
+                    department: myList[index].departmentName!,
+                    aboutUs: myList[index].aboutUs!,
+                    id: myList[index].id!,
+                  );
+                },
+              ),
+        nextUrl != "null"
+            ? Padding(
+                padding: const EdgeInsets.all(50.0),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                ),
+              )
+            : Container(),
+      ],
+    );
+  }
+
+  Column buildListDoctor() {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(AppLocalizations.of(context)!.doctor_list,
+                  style: Theme.of(context).textTheme.headline6),
+              RawMaterialButton(
+                  constraints: BoxConstraints(minWidth: 15, minHeight: 15),
+                  fillColor: Colors.grey,
+                  shape: CircleBorder(),
+                  onPressed: () {
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) => DoctorList()));
                   },
-                  child: Text(AppLocalizations.of(context)!.see_all,
-                      style: Theme.of(context)
-                          .textTheme
-                          .apply(bodyColor: NAVY_BLUE)
-                          .titleMedium),
+                  child: Icon(
+                    Icons.keyboard_arrow_right_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  )),
+            ],
+          ),
+        ),
+        doctorsList == null
+            ? Container()
+            : ListView.builder(
+                shrinkWrap: true,
+                itemCount: myList.length,
+                physics: ClampingScrollPhysics(),
+                itemBuilder: (context, index) {
+                  return doctorDetailTile(
+                    imageUrl: myList[index].image!,
+                    name: myList[index].name!,
+                    department: myList[index].departmentName!,
+                    aboutUs: myList[index].aboutUs!,
+                    id: myList[index].id!,
+                  );
+                },
+              ),
+        nextUrl != "null"
+            ? Padding(
+                padding: const EdgeInsets.all(50.0),
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                ),
+              )
+            : Container(),
+      ],
+    );
+  }
+
+  InkWell buildTopBanner() {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  isLoggedIn ? BookAppointment() : LoginScreen(),
+            ));
+      },
+      child: Stack(
+        children: [
+          Container(
+            margin: EdgeInsets.all(14),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: Image.asset(
+                "assets/homescreen/Book-appointment-banner.png",
+                height: 180,
+                width: MediaQuery.of(context).size.width,
+                fit: BoxFit.fill,
+              ),
+            ),
+          ),
+          Container(
+            margin: EdgeInsets.all(10),
+            height: 180,
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 20,
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(AppLocalizations.of(context)!.book,
+                        style: Theme.of(context)
+                            .textTheme
+                            .apply(bodyColor: Colors.white)
+                            .headline6),
+                    Text(AppLocalizations.of(context)!.appointment,
+                        style: Theme.of(context)
+                            .textTheme
+                            .apply(bodyColor: Colors.white)
+                            .headline6),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(AppLocalizations.of(context)!.quickly_create_files,
+                        style: Theme.of(context)
+                            .textTheme
+                            .apply(bodyColor: Colors.white)
+                            .bodyText2),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Container(
+                      width: isLoggedIn ? 120 : 130,
+                      height: 28,
+                      child: Stack(
+                        children: [
+                          Image.asset(
+                            "assets/homescreen/bookappointment.png",
+                            width: isLoggedIn ? 120 : 130,
+                            height: 28,
+                            fit: BoxFit.fill,
+                          ),
+                          Center(
+                            child: Text(
+                                textAlign: TextAlign.center,
+                                isLoggedIn
+                                    ? AppLocalizations.of(context)!
+                                        .bookappointment
+                                    : AppLocalizations.of(context)!
+                                        .login_to_book_appointment,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .apply(
+                                      bodyColor: NAVY_BLUE,
+                                    )
+                                    .bodySmall),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
                 ),
               ],
             ),
-          ),
-          doctorsList == null
-              ? Container()
-              : ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: myList.length,
-                  physics: ClampingScrollPhysics(),
-                  itemBuilder: (context, index) {
-                    return doctorDetailTile(
-                      imageUrl: myList[index].image!,
-                      name: myList[index].name!,
-                      department: myList[index].departmentName!,
-                      aboutUs: myList[index].aboutUs!,
-                      id: myList[index].id!,
-                    );
-                  },
-                ),
-          nextUrl != "null"
-              ? Padding(
-                  padding: const EdgeInsets.all(50.0),
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                  ),
-                )
-              : Container(),
+          )
         ],
       ),
     );
