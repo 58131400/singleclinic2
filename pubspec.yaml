@@ -72,6 +72,9 @@ dependencies:
   change_app_package_name: ^1.0.0
   firebase_storage: ^10.3.3
   image_picker_for_web: ^2.1.8
+  awesome_dialog: ^3.0.1
+  table_calendar: ^3.0.7
+  font_awesome_flutter: ^10.2.1
 
 
 dev_dependencies:

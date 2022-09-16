@@ -1,11 +1,11 @@
-class DepartmentsList {
+class FacilityList {
   int? status;
   String? msg;
   List<Data>? data;
 
-  DepartmentsList({this.status, this.msg, this.data});
+  FacilityList({this.status, this.msg, this.data});
 
-  DepartmentsList.fromJson(Map<String, dynamic> json) {
+  FacilityList.fromJson(Map<String, dynamic> json) {
     status = json['status'];
     msg = json['msg'];
     if (json['data'] != null) {
@@ -30,6 +30,8 @@ class DepartmentsList {
 class Data {
   int? id;
   String? name;
+  String? icon;
+  String? description;
 
   Data({this.id, this.name});
 

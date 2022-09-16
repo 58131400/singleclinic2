@@ -13,7 +13,6 @@ class MyNotificationHelper {
   late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
   MyNotificationHelper() {
-
     initialize();
     print("\n\nPayload : $payload");
   }
@@ -38,8 +37,7 @@ class MyNotificationHelper {
   }
 
   showNotification(
-      {
-        required String title,
+      {required String title,
       required String body,
       required String payload,
       required String id,
@@ -63,6 +61,7 @@ class MyNotificationHelper {
 
   Future<void> showMessagingNotification(
       {Map<String, dynamic>? data, BuildContext? context2}) async {
+    print('show data message: $data');
     context = context2;
 
     const Person me = Person(

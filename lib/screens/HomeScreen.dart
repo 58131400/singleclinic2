@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:firebase_database/firebase_database.dart';
@@ -14,6 +15,7 @@ import 'package:singleclinic/AllText.dart';
 import 'package:singleclinic/main.dart';
 import 'package:singleclinic/modals/DoctorsList.dart';
 import 'package:singleclinic/screens/BookAppointment.dart';
+
 import 'package:singleclinic/screens/ChatScreen.dart';
 import 'package:singleclinic/screens/DoctorDetail.dart';
 import 'package:singleclinic/screens/DoctorList.dart';
@@ -69,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       print("\n\nonMessage: $event");
       print("\nchannel: ${event.notification}");
       await SharedPreferences.getInstance().then((value) {
-        print(value.get(event.data['uid']) ?? "does not exist");
+        print('uid: ${value.get(event.data['uid'])}');
         if (value.get(event.data['uid']) != null) {
           notificationHelper.showMessagingNotification(
               data: event.data, context2: context);
@@ -190,6 +192,57 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
   }
 
+  dialog() {
+    AwesomeDialog(
+        context: context,
+        dialogType: DialogType.noHeader,
+        animType: AnimType.bottomSlide,
+        body: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 16, 8, 8),
+          child: Column(
+            children: [
+              ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      minimumSize: Size.fromHeight(40),
+                      primary: NAVY_BLUE,
+                      textStyle: Theme.of(context)
+                          .textTheme
+                          .apply(bodyColor: Colors.white)
+                          .bodyText1),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BookAppointment(isBookByDate: true,),
+                        ));
+                  },
+                  child: Text(
+                      AppLocalizations.of(context)!.book_appointment_by_day)),
+              SizedBox(height: 8),
+              ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      minimumSize: Size.fromHeight(40),
+                      primary: NAVY_BLUE,
+                      textStyle: Theme.of(context)
+                          .textTheme
+                          .apply(bodyColor: Colors.white)
+                          .bodyText1),
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => BookAppointment(isBookByDate: false,),
+                        ));
+                  },
+                  child: Text(AppLocalizations.of(context)!
+                      .book_appointment_by_doctor)),
+            ],
+          ),
+        ),
+        showCloseIcon: true)
+      ..show();
+  }
+
   Column buildListService() {
     return Column(
       children: [
@@ -299,14 +352,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   InkWell buildTopBanner() {
     return InkWell(
-      onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  isLoggedIn ? BookAppointment() : LoginScreen(),
-            ));
-      },
+      onTap: dialog,
+      //() {
+      // Navigator.push(
+      //     context,
+      //     MaterialPageRoute(
+      //       builder: (context) =>
+      //           isLoggedIn ? BookAppointment() : LoginScreen(),
+      //     ));
+      //},
       child: Stack(
         children: [
           Container(

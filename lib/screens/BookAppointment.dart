@@ -1,34 +1,49 @@
 import 'dart:convert';
 
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:singleclinic/AllText.dart';
 import 'package:singleclinic/modals/DepartmentsList.dart';
 import 'package:singleclinic/modals/DoctorsAndServices.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:singleclinic/modals/FacilitiesClass.dart';
+import 'package:singleclinic/screens/DoctorsForAppointment.dart';
+import 'package:singleclinic/screens/DoctorList.dart';
+
+import 'package:table_calendar/table_calendar.dart';
 import '../main.dart';
+import '../modals/DoctorDetails.dart';
 
 class BookAppointment extends StatefulWidget {
   @override
   _BookAppointmentState createState() => _BookAppointmentState();
+  final bool? isBookByDate;
+  const BookAppointment({super.key, this.isBookByDate});
 }
 
 class _BookAppointmentState extends State<BookAppointment> {
   String? departmentValue;
   String? doctorValue;
   String? serviceValue;
+  String? facilityValue;
+
   int? doctorId;
   int? serviceId;
   int? departmentId;
   int? userId;
+  int? facilityId;
+
   String? selectedFormattedDate;
   TextEditingController? nameController;
   TextEditingController? phoneController;
-  String? date;
+  String? day;
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
-  String? _hour, _minute, _time = " ";
+
+  String? _hour, _minute, _time = " ", formatedTime;
 
   DoctorsAndServices? doctorsAndServices;
   bool isLoadingDoctorAndServices = false;
@@ -50,6 +65,7 @@ class _BookAppointmentState extends State<BookAppointment> {
   ];
 
   DepartmentsList? departmentsList;
+  FacilitiesClass? facilityClass;
 
   String message = "";
 
@@ -61,13 +77,18 @@ class _BookAppointmentState extends State<BookAppointment> {
         monthsList[selectedDate.month] +
         ", " +
         selectedDate.year.toString();
-    _time = "Select Time";
+    _time = "";
+
     getDepartmentsList();
+    getFacilityList();
+
     SharedPreferences.getInstance().then((value) {
       userId = value.getInt("id");
       nameController = TextEditingController(text: value.getString("name"));
       phoneController =
           TextEditingController(text: value.getString("phone_no"));
+
+      print('User ID: $userId');
     });
   }
 
@@ -105,14 +126,19 @@ class _BookAppointmentState extends State<BookAppointment> {
                   constraints: BoxConstraints(maxWidth: 30, minWidth: 10),
                   padding: EdgeInsets.zero,
                   onPressed: () {
-                    Navigator.pop(context);
+                    Navigator.popUntil(context, (route) => route.isFirst);
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TabBarScreen(),
+                        ));
                   },
                 ),
                 SizedBox(
                   width: 10,
                 ),
                 Text(
-                  AppLocalizations.of(context)!.appointment_now.toUpperCase(),
+                  AppLocalizations.of(context)!.appointment.toUpperCase(),
                   style: TextStyle(
                       color: NAVY_BLUE,
                       fontSize: 22,
@@ -127,7 +153,7 @@ class _BookAppointmentState extends State<BookAppointment> {
   }
 
   body() {
-    if (departmentsList == null) {
+    if (departmentsList == null || facilityClass == null) {
       return Center(
         child: CircularProgressIndicator(
           strokeWidth: 2,
@@ -138,264 +164,18 @@ class _BookAppointmentState extends State<BookAppointment> {
         children: [
           Expanded(
             child: SingleChildScrollView(
-              child: Container(
-                padding: EdgeInsets.fromLTRB(20, 12, 20, 0),
+              child: Padding(
+                padding: EdgeInsets.all(8),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    DropdownButton(
-                      isExpanded: true,
-                      hint: Text(
-                        AppLocalizations.of(context)!.select_department,
-                      ),
-                      value: departmentValue,
-                      items:
-                          List.generate(departmentsList!.data!.length, (index) {
-                        return DropdownMenuItem(
-                          value: departmentsList!.data![index].name,
-                          child: Text(
-                            departmentsList!.data![index].name.toString(),
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          onTap: () {
-                            setState(() {
-                              departmentId = departmentsList!.data![index].id;
-                            });
-                            fetchDoctorsAndServices(
-                                departmentsList!.data![index].id!);
-                          },
-                          key: UniqueKey(),
-                        );
-                      }),
-                      icon: Image.asset(
-                        "assets/bookappointment/down-arrow.png",
-                        height: 15,
-                        width: 15,
-                      ),
-                      onChanged: (val) {
-                        print(val);
-                        setState(() {
-                          departmentValue = val.toString();
-                        });
-                      },
-                    ),
+                    buildPatientInfo(),
                     SizedBox(
                       height: 8,
                     ),
-                    DropdownButton<String>(
-                      isExpanded: true,
-                      hint: Text(
-                        isLoadingDoctorAndServices ? LOADING : SELECT_DOCTOR,
-                      ),
-                      value: doctorValue,
-                      icon: Image.asset(
-                        "assets/bookappointment/down-arrow.png",
-                        height: 15,
-                        width: 15,
-                      ),
-                      items: doctorsAndServices == null
-                          ? []
-                          : List.generate(
-                              doctorsAndServices!.data!.doctor!.length,
-                              (index) {
-                              return DropdownMenuItem(
-                                value: doctorsAndServices!
-                                    .data!.doctor![index].name,
-                                child: Text(doctorsAndServices!
-                                    .data!.doctor![index].name!),
-                                key: UniqueKey(),
-                                onTap: () {
-                                  setState(() {
-                                    doctorId = doctorsAndServices!
-                                        .data!.doctor![index].userId;
-                                  });
-                                },
-                              );
-                            }),
-                      onChanged: (val) {
-                        print(val);
-                        setState(() {
-                          doctorValue = val.toString();
-                        });
-                      },
-                    ),
+                    buildAppointmentInfo(),
                     SizedBox(
-                      height: 8,
-                    ),
-                    DropdownButton<String>(
-                      isExpanded: true,
-                      hint: Text(
-                        isLoadingDoctorAndServices ? LOADING : SELECT_SERVICES,
-                      ),
-                      icon: Image.asset(
-                        "assets/bookappointment/down-arrow.png",
-                        height: 15,
-                        width: 15,
-                      ),
-                      value: serviceValue,
-                      items: doctorsAndServices == null
-                          ? []
-                          : List.generate(
-                              doctorsAndServices!.data!.services!.length,
-                              (index) {
-                              return DropdownMenuItem(
-                                value: doctorsAndServices!
-                                        .data!.services![index].name! +
-                                    index.toString(),
-                                child: Text(doctorsAndServices!
-                                    .data!.services![index].name!),
-                                key: UniqueKey(),
-                                onTap: () {
-                                  setState(() {
-                                    serviceId = doctorsAndServices!
-                                        .data!.services![index].id;
-                                  });
-                                },
-                              );
-                            }),
-                      onChanged: (val) {
-                        print(val);
-                        setState(() {
-                          serviceValue = val.toString();
-                        });
-                      },
-                    ),
-                    SizedBox(
-                      height: 15,
-                    ),
-                    Text(
-                      AppLocalizations.of(context)!.name,
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-                    ),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    TextField(
-                      controller: nameController,
-                      decoration: InputDecoration(
-                          contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 10),
-                          isCollapsed: true),
-                      style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                          color: LIGHT_GREY_TEXT),
-                    ),
-                    SizedBox(
-                      height: 15,
-                    ),
-                    Text(
-                      AppLocalizations.of(context)!.phone_number,
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-                    ),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    TextField(
-                      controller: phoneController,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                          contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 10),
-                          isCollapsed: true),
-                      style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                          color: LIGHT_GREY_TEXT),
-                    ),
-                    SizedBox(
-                      height: 15,
-                    ),
-                    Text(
-                      AppLocalizations.of(context)!.date,
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        _selectDate(context);
-                      },
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            selectedFormattedDate.toString(),
-                            style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
-                                color: LIGHT_GREY_TEXT),
-                          ),
-                          Divider(
-                            color: LIGHT_GREY_TEXT,
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 15,
-                    ),
-                    Text(
-                      AppLocalizations.of(context)!.time,
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        _selectTime(context);
-                      },
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            _time!,
-                            style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
-                                color: LIGHT_GREY_TEXT),
-                          ),
-                          Divider(
-                            color: LIGHT_GREY_TEXT,
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 15,
-                    ),
-                    Text(
-                      AppLocalizations.of(context)!.message,
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-                    ),
-                    TextField(
-                      maxLines: 3,
-                      minLines: 1,
-                      style: TextStyle(color: LIGHT_GREY_TEXT, fontSize: 14),
-                      decoration: InputDecoration(
-                        border: UnderlineInputBorder(
-                          borderSide:
-                              BorderSide(color: LIGHT_GREY_TEXT, width: 0.5),
-                        ),
-                        focusedBorder: UnderlineInputBorder(
-                          borderSide:
-                              BorderSide(color: LIGHT_GREY_TEXT, width: 0.5),
-                        ),
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide:
-                              BorderSide(color: LIGHT_GREY_TEXT, width: 0.5),
-                        ),
-                      ),
-                      onChanged: (val) {
-                        setState(() {
-                          message = val;
-                        });
-                      },
+                      height: 16,
                     ),
                   ],
                 ),
@@ -406,6 +186,518 @@ class _BookAppointmentState extends State<BookAppointment> {
         ],
       );
     }
+  }
+
+  Container buildAppointmentInfo() {
+    return Container(
+      decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(2)),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(8, 16, 8, 32),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                FaIcon(FontAwesomeIcons.calendarCheck),
+                SizedBox(
+                  width: 5,
+                ),
+                Text(
+                  AppLocalizations.of(context)!.appointment_info,
+                  style: Theme.of(context).textTheme.titleSmall,
+                )
+              ],
+            ),
+            SizedBox(
+              height: 16,
+            ),
+            buildFacilityList(),
+            SizedBox(
+              height: 16,
+            ),
+            widget.isBookByDate == true ? buildDate() : buildDoctorList(),
+            SizedBox(
+              height: 16,
+            ),
+            buildDepartmentList(),
+            SizedBox(
+              height: 16,
+            ),
+            widget.isBookByDate == true ? buildDoctorList() : buildDate(),
+            SizedBox(
+              height: 16,
+            ),
+            buildServiceList(),
+            SizedBox(
+              height: 16,
+            ),
+            buildTime(),
+            SizedBox(
+              height: 16,
+            ),
+            buildMessage(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  buildMessage() {
+    return Row(children: [
+      Expanded(
+        child: Center(
+          child: FaIcon(FontAwesomeIcons.message),
+        ),
+        flex: 1,
+      ),
+      Expanded(
+          flex: 5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              message == ""
+                  ? Container()
+                  : Text(
+                      AppLocalizations.of(context)!.write_your_message,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+              TextField(
+                maxLines: 3,
+                minLines: 1,
+                style: Theme.of(context).textTheme.bodyText1,
+                decoration: InputDecoration(
+                  hintText: AppLocalizations.of(context)!.write_your_message,
+                  border: UnderlineInputBorder(
+                    borderSide: BorderSide(color: LIGHT_GREY_TEXT, width: 0.5),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: LIGHT_GREY_TEXT, width: 0.5),
+                  ),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: LIGHT_GREY_TEXT, width: 0.5),
+                  ),
+                ),
+                onChanged: (val) {
+                  setState(() {
+                    message = val;
+                  });
+                },
+              ),
+            ],
+          ))
+    ]);
+  }
+
+  buildTime() {
+    return Row(
+      children: [
+        Expanded(
+          child: Center(
+            child: FaIcon(FontAwesomeIcons.clock),
+          ),
+          flex: 1,
+        ),
+        Expanded(
+          flex: 5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _time == ""
+                  ? Container()
+                  : Text(
+                      AppLocalizations.of(context)!.time,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+              InkWell(
+                onTap: () {
+                  // _selectTime(context);
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 5,
+                    ),
+                    _time == ""
+                        ? Text(
+                            AppLocalizations.of(context)!.select_time,
+                            style: Theme.of(context)
+                                .textTheme
+                                .apply(bodyColor: LIGHT_GREY_TEXT)
+                                .bodyText1,
+                          )
+                        : Text(
+                            formatedTime!,
+                            style: Theme.of(context).textTheme.bodyText1,
+                          ),
+                    Divider(
+                      color: LIGHT_GREY_TEXT,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Row buildDate() {
+    return Row(
+      children: [
+        Expanded(
+          flex: 1,
+          child: Align(
+            alignment: Alignment.center,
+            child: Icon(
+              Icons.calendar_month,
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(AppLocalizations.of(context)!.date,
+                  style: Theme.of(context).textTheme.bodySmall),
+              InkWell(
+                onTap: () => _selectDate(context),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(selectedFormattedDate.toString(),
+                                  style: Theme.of(context).textTheme.bodyText1),
+                              Divider(
+                                color: LIGHT_GREY_TEXT,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  buildPatientInfo() {
+    return Container(
+      padding: EdgeInsets.fromLTRB(8, 16, 8, 32),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(2),
+        color: Colors.white,
+      ),
+      child: InkWell(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                FaIcon(FontAwesomeIcons.circleUser),
+                SizedBox(
+                  width: 5,
+                ),
+                Text(
+                  AppLocalizations.of(context)!.patient_profile,
+                  style: Theme.of(context).textTheme.titleSmall,
+                )
+              ],
+            ),
+            SizedBox(
+              height: 16,
+            ),
+            Text(
+              AppLocalizations.of(context)!.name,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            SizedBox(
+              height: 5,
+            ),
+            TextField(
+                controller: nameController,
+                decoration: InputDecoration(
+                    contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                    isCollapsed: true),
+                style: Theme.of(context).textTheme.bodyText1),
+            SizedBox(
+              height: 16,
+            ),
+            Text(
+              AppLocalizations.of(context)!.phone_number,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+            SizedBox(
+              height: 5,
+            ),
+            TextField(
+                controller: phoneController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                    contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                    isCollapsed: true),
+                style: Theme.of(context).textTheme.bodyText1),
+          ],
+        ),
+      ),
+    );
+  }
+
+  buildServiceList() {
+    return Row(
+      children: [
+        Expanded(
+          child: Center(child: FaIcon(FontAwesomeIcons.briefcaseMedical)),
+          flex: 1,
+        ),
+        Expanded(
+          flex: 5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              serviceValue == null
+                  ? Container()
+                  : Text(
+                      AppLocalizations.of(context)!.services,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+              DropdownButton<String>(
+                isExpanded: true,
+                hint: Text(
+                  isLoadingDoctorAndServices ? LOADING : SELECT_SERVICES,
+                  style: Theme.of(context)
+                      .textTheme
+                      .apply(bodyColor: LIGHT_GREY_TEXT)
+                      .bodyText1,
+                ),
+                icon: Image.asset(
+                  "assets/bookappointment/down-arrow.png",
+                  height: 15,
+                  width: 15,
+                ),
+                value: serviceValue,
+                items: doctorsAndServices == null
+                    ? []
+                    : List.generate(doctorsAndServices!.data!.services!.length,
+                        (index) {
+                        return DropdownMenuItem(
+                          value:
+                              doctorsAndServices!.data!.services![index].name! +
+                                  index.toString(),
+                          child: Text(
+                              doctorsAndServices!.data!.services![index].name!),
+                          key: UniqueKey(),
+                          onTap: () {
+                            setState(() {
+                              serviceId =
+                                  doctorsAndServices!.data!.services![index].id;
+                            });
+                          },
+                        );
+                      }),
+                onChanged: (val) {
+                  print(val);
+                  setState(() {
+                    serviceValue = val.toString();
+                  });
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  buildDoctorList() {
+    return Row(
+      children: [
+        Expanded(
+            flex: 1, child: Center(child: FaIcon(FontAwesomeIcons.userDoctor))),
+        Expanded(
+          flex: 5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              doctorValue == null
+                  ? Container()
+                  : Text(
+                      isLoadingDoctorAndServices ? LOADING : DOCTORS,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+              InkWell(
+                onTap: () {
+                  _selectDoctorAndTime(context);
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 5,
+                    ),
+                    doctorValue == null
+                        ? Text(
+                            AppLocalizations.of(context)!.select_doctor,
+                            style: Theme.of(context)
+                                .textTheme
+                                .apply(bodyColor: LIGHT_GREY_TEXT)
+                                .bodyText1,
+                          )
+                        : Text(
+                            doctorValue!,
+                            style: Theme.of(context).textTheme.bodyText1,
+                          ),
+                    Divider(
+                      color: LIGHT_GREY_TEXT,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  buildDepartmentList() {
+    return Row(
+      children: [
+        Expanded(
+            flex: 1,
+            child: Center(child: FaIcon(FontAwesomeIcons.stethoscope))),
+        Expanded(
+          flex: 5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              departmentValue == null
+                  ? Container()
+                  : Text(
+                      AppLocalizations.of(context)!.departments,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+              DropdownButton(
+                hint: Text(
+                  AppLocalizations.of(context)!.select_department,
+                  style: Theme.of(context)
+                      .textTheme
+                      .apply(bodyColor: LIGHT_GREY_TEXT)
+                      .bodyText1,
+                ),
+                isExpanded: true,
+                value: departmentValue,
+                items: List.generate(departmentsList!.data!.length, (index) {
+                  return DropdownMenuItem(
+                    value: departmentsList!.data![index].name,
+                    child: Text(departmentsList!.data![index].name.toString(),
+                        style: Theme.of(context).textTheme.bodyText1),
+                    onTap: () {
+                      setState(() {
+                        departmentId = departmentsList!.data![index].id;
+                      });
+                      fetchDoctorsAndServices(
+                          departmentsList!.data![index].id!);
+                    },
+                    key: UniqueKey(),
+                  );
+                }),
+                icon: Image.asset(
+                  "assets/bookappointment/down-arrow.png",
+                  height: 15,
+                  width: 15,
+                ),
+                onChanged: (val) {
+                  print(val);
+                  setState(() {
+                    departmentValue = val.toString();
+                  });
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  buildFacilityList() {
+    return Row(children: [
+      Expanded(
+        flex: 1,
+        child: Align(
+          alignment: Alignment.center,
+          child: Icon(
+            Icons.location_on,
+          ),
+        ),
+      ),
+      Expanded(
+          flex: 5,
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            facilityValue == null
+                ? Container()
+                : Text(
+                    AppLocalizations.of(context)!.facilities,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+            DropdownButton(
+              hint: Text(
+                AppLocalizations.of(context)!.select_facility,
+                style: Theme.of(context)
+                    .textTheme
+                    .apply(bodyColor: LIGHT_GREY_TEXT)
+                    .bodyText1,
+              ),
+              isExpanded: true,
+              value: facilityValue,
+              items: List.generate(facilityClass!.data!.data!.length, (index) {
+                return DropdownMenuItem(
+                  value: facilityClass!.data!.data![index].name,
+                  child: Text(
+                    facilityClass!.data!.data![index].name.toString(),
+                    style: Theme.of(context).textTheme.bodyText1,
+                  ),
+                  onTap: () {
+                    setState(() {
+                      facilityId = facilityClass!.data!.data![index].id;
+                      print('facilityId: ' + facilityId.toString());
+                    });
+                  },
+                  key: UniqueKey(),
+                );
+              }),
+              icon: Image.asset(
+                "assets/bookappointment/down-arrow.png",
+                height: 15,
+                width: 15,
+              ),
+              onChanged: (val) {
+                print(val);
+                setState(() {
+                  facilityValue = val.toString();
+                  print('facilityValue ' + facilityValue.toString());
+                });
+              },
+            )
+          ]))
+    ]);
   }
 
   bottomButtons() {
@@ -450,15 +742,20 @@ class _BookAppointmentState extends State<BookAppointment> {
         currentDate: selectedDate,
         firstDate: DateTime(2020),
         lastDate: DateTime(2101));
-    setState(() {
-      selectedDate = picked!;
-      print(selectedDate.toString().substring(0, 10));
-      selectedFormattedDate = selectedDate.day.toString() +
-          " " +
-          monthsList[selectedDate.month] +
-          ", " +
-          selectedDate.year.toString();
-    });
+    if (picked == null)
+      return;
+    else
+      setState(() {
+        selectedDate = picked;
+        print(selectedDate.toString().substring(0, 10));
+        selectedFormattedDate = selectedDate.day.toString() +
+            " " +
+            monthsList[selectedDate.month] +
+            ", " +
+            selectedDate.year.toString();
+
+        print(selectedFormattedDate);
+      });
   }
 
   Future<Null> _selectTime(BuildContext context) async {
@@ -515,6 +812,22 @@ class _BookAppointmentState extends State<BookAppointment> {
     }
   }
 
+  getFacilityList() async {
+    print('Getting facility----------------------------');
+
+    final response =
+        await get(Uri.parse("$SERVER_ADDRESS/api/listoffacilities"));
+
+    final jsonResponse = jsonDecode(response.body);
+    print('getFacilityList response:  $jsonResponse');
+
+    if (response.statusCode == 200 && jsonResponse['status'] == 1) {
+      setState(() {
+        facilityClass = FacilitiesClass.fromJson(jsonResponse);
+      });
+    }
+  }
+
   fetchDoctorsAndServices(int id) async {
     setState(() {
       doctorValue = null;
@@ -539,7 +852,7 @@ class _BookAppointmentState extends State<BookAppointment> {
     if (departmentId == null ||
         serviceId == null ||
         doctorId == null ||
-        _time == "Select Time") {
+        _time == "") {
       messageDialog("Error", ENTER_ALL_FIELDS_TO_MAKE_APPOINTMENT);
     } else {
       dialog();
@@ -679,5 +992,41 @@ class _BookAppointmentState extends State<BookAppointment> {
             ],
           );
         });
+  }
+
+  _selectDoctorAndTime(BuildContext context) async {
+    final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DoctorList(),
+        ));
+    print('result : $result');
+    if (!mounted) {
+      print('mounted = false');
+      return;
+    } else {
+      fetchDoctorDetails(result['doctorId']);
+      setState(() {
+        formatedTime = result['from'] + ' - ' + result['to'];
+        _time = result['from'];
+      });
+    }
+  }
+
+  fetchDoctorDetails(int id) async {
+    final response =
+        await get(Uri.parse("$SERVER_ADDRESS/api/doctordetails?id=${id}"));
+
+    print(response.request);
+
+    final jsonResponse = jsonDecode(response.body);
+
+    print(jsonResponse);
+
+    if (response.statusCode == 200 && jsonResponse['status'] == 1) {
+      setState(() {
+        doctorValue = DoctorDetail.fromJson(jsonResponse).data!.name;
+      });
+    }
   }
 }

@@ -13,6 +13,7 @@
     "services": "Services",
     "book_appointment": "Book Appointment",
     "appointment_now": "Appointment Now",
+    "select_facility": "Select Facility",
     "select_department": "Select Department",
     "select_doctor": "Select Doctors",
     "select_services": "Select Services",
@@ -152,5 +153,11 @@
     "all_doctors":"All Doctors",
     "see_all_reviews":"See all reviews",
     "welcome":"Welcome",
-    "welcome_message": "Login account or create new one for free"
+    "welcome_message": "Login account or create new one for free",
+    "book_appointment_by_day":"Book appointment by date",
+    "book_appointment_by_doctor":"Book appointment by doctor",
+    "select_time":"Select Time",
+    "appointment_info": "Appointment Information",
+    "patient_profile":"Patient Profile"
+    
 }

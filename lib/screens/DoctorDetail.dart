@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:singleclinic/AllText.dart';
 import 'package:singleclinic/modals/DoctorDetails.dart';
 import 'package:singleclinic/screens/AutoselectBookAppointment.dart';
+import 'package:singleclinic/screens/BookAppointment.dart';
 import 'package:singleclinic/screens/ChatScreen.dart';
 import 'package:singleclinic/screens/LoginScreen.dart';
 import 'package:singleclinic/screens/ReviewScreen.dart';
@@ -382,49 +383,64 @@ class _DoctorDetailsState extends State<DoctorDetails> {
                 mainAxisSpacing: 5),
             itemCount: doctorDetail!.data!.timeTabledata!.length,
             itemBuilder: (context, index) {
-              return Row(
-                children: [
-                  Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Center(
-                      child: Image.asset("assets/doctordetails/free-time.png"),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              return InkWell(
+                onTap: () {
+                  Map map = {
+                    'doctorId': doctorDetail!.data!.userId,
+                    'day': doctorDetail!.data!.timeTabledata![index].day,
+                    'from':doctorDetail!.data!.timeTabledata![index].from,
+                    'to':doctorDetail!.data!.timeTabledata![index].to
+                  };
+                  Navigator.pop(context, map);
+                },
+                child: Container(
+                  child: Row(
                     children: [
-                      Text(
-                        weekDaysList[
-                            doctorDetail!.data!.timeTabledata![index].day! - 1],
-                        style: TextStyle(
-                            color: NAVY_BLUE,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700),
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Text(
-                        doctorDetail!.data!.timeTabledata![index].from! +
-                            " to " +
-                            doctorDetail!.data!.timeTabledata![index].to!,
-                        style: TextStyle(
-                          color: LIGHT_GREY_TEXT,
-                          fontSize: 9,
+                      Container(
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Center(
+                          child:
+                              Image.asset("assets/doctordetails/free-time.png"),
                         ),
                       ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            weekDaysList[
+                                doctorDetail!.data!.timeTabledata![index].day! -
+                                    1],
+                            style: TextStyle(
+                                color: NAVY_BLUE,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            doctorDetail!.data!.timeTabledata![index].from! +
+                                " to " +
+                                doctorDetail!.data!.timeTabledata![index].to!,
+                            style: TextStyle(
+                              color: LIGHT_GREY_TEXT,
+                              fontSize: 9,
+                            ),
+                          ),
+                        ],
+                      )
                     ],
-                  )
-                ],
+                  ),
+                ),
               );
             },
           ),

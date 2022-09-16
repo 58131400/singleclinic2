@@ -13,6 +13,7 @@
     "services": "Dịch vụ",
     "book_appointment": "Đặt lịch hẹn",
     "appointment_now": "Đặt lịch ngay",
+    "select_facility": "Chọn cơ sở",
     "select_department": "Chọn khoa",
     "select_doctor": "Chọn bác sĩ",
     "select_services": "Chọn dịch vụ",
@@ -152,5 +153,10 @@
       "all_doctors":"Tất cả bác sĩ",
       "see_all_reviews":"Xem tất cả đánh giá",
           "welcome":"Xin Chào",
-    "welcome_message": "Đăng nhập hoặc tạo tài khoản miễn phí"
+    "welcome_message": "Đăng nhập hoặc tạo tài khoản miễn phí",
+        "book_appointment_by_day":"Đặt lịch khám theo ngày",
+    "book_appointment_by_doctor":"Đặt lịch khám theo bác sĩ",
+    "select_time":"Chọn giờ khám",
+    "appointment_info": "Thông tin lịch khám",
+    "patient_profile":"Hồ sơ bệnh nhân"
 }

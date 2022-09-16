@@ -8,6 +8,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:singleclinic/screens/AppointmentScreen.dart';
+import 'package:singleclinic/screens/BookAppointment.dart';
 import 'package:singleclinic/screens/ChatList.dart';
 import 'package:singleclinic/screens/HomeScreen.dart';
 import 'package:singleclinic/screens/SettingsScreen.dart';
@@ -19,7 +20,8 @@ import 'notificationTesting/notificationHelper.dart';
 
 FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
 
-String SERVER_ADDRESS = "http://192.168.1.6:80/PHPScript";
+//String SERVER_ADDRESS = "http://192.168.1.6:80/PHPScript";
+String SERVER_ADDRESS = "http://192.168.101.24:80/PHPScript";
 MyNotificationHelper notificationHelper = MyNotificationHelper();
 final String serverToken =
     // "AAAAO2Co7iU:APA91bHzp5j7Do_A_LAFUpwLzqNESEYUUC_At6nLZoB6yH1wmWFsfsvKjOplY9cYH-pJzpVfYTZl68oFkip9F-VlXqr4oB-NA9QuJ1ZMBLPLfXh_mn4taaQR7cXEtw1j2Ryqka2kAlqy";
@@ -77,7 +79,7 @@ class _SingleClinicState extends State<SingleClinic> {
           _locale = Locale(value.getString("language_code")!);
         });
       } else
-        _locale = Locale(value.getString("en")!);
+        _locale = Locale("en");
     });
   }
 
@@ -104,6 +106,7 @@ class _SingleClinicState extends State<SingleClinic> {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+      routes: {'/bookAppointment': (context) => BookAppointment()},
       locale: _locale,
       supportedLocales: [
         const Locale('vi', ''),
@@ -267,7 +270,7 @@ class _AppleLoginState extends State<AppleLogin> {
 Future myBackgroundMessageHandler(RemoteMessage event) async {
   await Firebase.initializeApp();
   HomeScreen().createState();
-  print("\n\nbackground: " + event.toString());
+  print("\n\nbackground:  ${event.data}");
 
   notificationHelper.showMessagingNotification(data: event.data);
 }

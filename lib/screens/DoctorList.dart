@@ -81,17 +81,16 @@ class _DoctorListState extends State<DoctorList> {
                 Row(
                   children: [
                     IconButton(
-                      icon: Icon(
-                        Icons.arrow_back_ios,
-                        size: 18,
-                        color: BLACK,
-                      ),
-                      constraints: BoxConstraints(maxWidth: 30, minWidth: 10),
-                      padding: EdgeInsets.zero,
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
+                        icon: Icon(
+                          Icons.arrow_back_ios,
+                          size: 18,
+                          color: BLACK,
+                        ),
+                        constraints: BoxConstraints(maxWidth: 30, minWidth: 10),
+                        padding: EdgeInsets.zero,
+                        onPressed: () {
+                          Navigator.pop(context);
+                        }),
                     SizedBox(
                       width: 10,
                     ),
@@ -177,94 +176,93 @@ class _DoctorListState extends State<DoctorList> {
       String? department,
       String? aboutUs,
       int? id}) {
-    return InkWell(
-      onTap: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) => DoctorDetails(id!)));
-      },
-      child: Container(
-        decoration: BoxDecoration(
-            color: LIGHT_GREY, borderRadius: BorderRadius.circular(10)),
-        child: Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: CachedNetworkImage(
-                  height: 75,
-                  width: 75,
-                  fit: BoxFit.cover,
-                  imageUrl: Uri.parse(imageUrl!).toString(),
-                  progressIndicatorBuilder: (context, url, downloadProgress) =>
-                      Container(
+    return id == null
+        ? CircularProgressIndicator()
+        : InkWell(
+            onTap: () => sendDataAndGetBack(id, context),
+            child: Container(
+              decoration: BoxDecoration(
+                  color: LIGHT_GREY, borderRadius: BorderRadius.circular(10)),
+              child: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: CachedNetworkImage(
+                        height: 75,
+                        width: 75,
+                        fit: BoxFit.cover,
+                        imageUrl: Uri.parse(imageUrl!).toString(),
+                        progressIndicatorBuilder:
+                            (context, url, downloadProgress) => Container(
+                                height: 75,
+                                width: 75,
+                                child: Center(child: Icon(Icons.image))),
+                        errorWidget: (context, url, error) => Container(
                           height: 75,
                           width: 75,
-                          child: Center(child: Icon(Icons.image))),
-                  errorWidget: (context, url, error) => Container(
-                    height: 75,
-                    width: 75,
-                    child: Center(
-                      child: Icon(Icons.broken_image_rounded),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    name!,
-                    style: TextStyle(
-                        color: BLACK,
-                        fontSize: 17,
-                        fontWeight: FontWeight.w800),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Container(
-                    color: LIME,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
-                      child: Text(
-                        department!,
-                        style: TextStyle(color: WHITE, fontSize: 10),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          aboutUs!,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: LIGHT_GREY_TEXT,
-                            fontSize: 10,
+                          child: Center(
+                            child: Icon(Icons.broken_image_rounded),
                           ),
                         ),
                       ),
-                    ],
+                    ),
                   ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          name!,
+                          style: TextStyle(
+                              color: BLACK,
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Container(
+                          color: LIME,
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
+                            child: Text(
+                              department!,
+                              style: TextStyle(color: WHITE, fontSize: 10),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                aboutUs!,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: LIGHT_GREY_TEXT,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    width: 16,
+                  )
                 ],
               ),
+              margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
             ),
-            SizedBox(
-              width: 16,
-            )
-          ],
-        ),
-        margin: EdgeInsets.fromLTRB(16, 8, 16, 8),
-      ),
-    );
+          );
   }
 
   fetchDoctorsList() async {
@@ -309,5 +307,13 @@ class _DoctorListState extends State<DoctorList> {
         });
       }
     }
+  }
+
+  Future<void> sendDataAndGetBack(int id, BuildContext context) async {
+    var resultOfDoctorList = await Navigator.push(
+        context, MaterialPageRoute(builder: (context) => DoctorDetails(id)));
+
+    print( resultOfDoctorList);
+    Navigator.pop(context, resultOfDoctorList);
   }
 }

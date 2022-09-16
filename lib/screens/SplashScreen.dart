@@ -26,6 +26,8 @@ class _SplashScreenState extends State<SplashScreen> {
     token = (await FirebaseMessaging.instance.getToken())!;
     SharedPreferences.getInstance().then((value) async {
       if (value.getBool("isTokenExist") ?? false) {
+        print('exist token: ${value.getBool("isTokenExist") ?? false}');
+        print('token: $token');
         Timer(Duration(seconds: 3), () {
           Navigator.pushReplacement(
             context,
