@@ -4,7 +4,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:singleclinic/modals/DoctorDetails.dart';
 import 'package:singleclinic/modals/DoctorsList.dart';
+
 import 'package:singleclinic/screens/DoctorDetail.dart';
 import 'package:singleclinic/screens/SearchScreen.dart';
 
@@ -12,6 +14,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../main.dart';
 
 class DoctorList extends StatefulWidget {
+  final int? departmentId;
+
+  DoctorList(this.departmentId);
   @override
   _DoctorListState createState() => _DoctorListState();
 }
@@ -28,7 +33,8 @@ class _DoctorListState extends State<DoctorList> {
   @override
   void initState() {
     super.initState();
-    fetchDoctorsList();
+    // fetchDoctorsList();
+    fetchDoctorsListByDepartment(widget.departmentId!);
     SharedPreferences.getInstance().then((value) {
       setState(() {
         isLoggedIn = value.getBool("isLoggedIn") ?? false;
@@ -40,7 +46,7 @@ class _DoctorListState extends State<DoctorList> {
               scrollController.position.maxScrollExtent &&
           !isLoadingMore) {
         print("Loadmore");
-        _loadMoreFunc();
+        _loadMoreFunc(widget.departmentId);
       }
     });
   }
@@ -179,7 +185,13 @@ class _DoctorListState extends State<DoctorList> {
     return id == null
         ? CircularProgressIndicator()
         : InkWell(
-            onTap: () => sendDataAndGetBack(id, context),
+            onTap: () {
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DoctorDetails(id),
+                  ));
+            },
             child: Container(
               decoration: BoxDecoration(
                   color: LIGHT_GREY, borderRadius: BorderRadius.circular(10)),
@@ -192,7 +204,7 @@ class _DoctorListState extends State<DoctorList> {
                       child: CachedNetworkImage(
                         height: 75,
                         width: 75,
-                        fit: BoxFit.cover,
+                        fit: BoxFit.scaleDown,
                         imageUrl: Uri.parse(imageUrl!).toString(),
                         progressIndicatorBuilder:
                             (context, url, downloadProgress) => Container(
@@ -229,7 +241,9 @@ class _DoctorListState extends State<DoctorList> {
                           child: Padding(
                             padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
                             child: Text(
-                              department!,
+                              AppLocalizations.of(context)!.department +
+                                  ' : ' +
+                                  department!,
                               style: TextStyle(color: WHITE, fontSize: 10),
                             ),
                           ),
@@ -279,12 +293,12 @@ class _DoctorListState extends State<DoctorList> {
         doctorsList = DoctorsList.fromJson(jsonDecode(response.body));
         myList.addAll(doctorsList!.data!.data!);
         nextUrl = doctorsList!.data!.nextPageUrl!;
-        _loadMoreFunc();
+        _loadMoreFunc(widget.departmentId);
       });
     }
   }
 
-  void _loadMoreFunc() async {
+  void _loadMoreFunc(int? id) async {
     print(nextUrl);
     if (nextUrl != "null" && !isLoadingMore) {
       setState(() {
@@ -292,7 +306,7 @@ class _DoctorListState extends State<DoctorList> {
       });
 
       final response = await get(
-        Uri.parse("$nextUrl&department_id=0"),
+        Uri.parse("$nextUrl&department_id={$id}"),
       );
 
       final jsonResponse = jsonDecode(response.body);
@@ -309,11 +323,21 @@ class _DoctorListState extends State<DoctorList> {
     }
   }
 
-  Future<void> sendDataAndGetBack(int id, BuildContext context) async {
-    var resultOfDoctorList = await Navigator.push(
-        context, MaterialPageRoute(builder: (context) => DoctorDetails(id)));
+  fetchDoctorsListByDepartment(int id) async {
+    final response = await get(Uri.parse(
+        "$SERVER_ADDRESS/api/listofdoctorbydepartment?department_id=${id}"));
 
-    print( resultOfDoctorList);
-    Navigator.pop(context, resultOfDoctorList);
+    final jsonResponse = jsonDecode(response.body);
+
+    if (response.statusCode == 200 && jsonResponse['status'] == 1) {
+      print(response.body);
+
+      setState(() {
+        doctorsList = DoctorsList.fromJson(jsonDecode(response.body));
+        myList.addAll(doctorsList!.data!.data!);
+        nextUrl = doctorsList!.data!.nextPageUrl!;
+        _loadMoreFunc(id);
+      });
+    }
   }
 }

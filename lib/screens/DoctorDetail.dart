@@ -27,6 +27,10 @@ class DoctorDetails extends StatefulWidget {
 
 class _DoctorDetailsState extends State<DoctorDetails> {
   DoctorDetail? doctorDetail;
+  int? day;
+  String? from, to;
+  int? tappedHour;
+
   List<String> weekDaysList = [
     SUNDAY,
     MONDAY,
@@ -37,13 +41,15 @@ class _DoctorDetailsState extends State<DoctorDetails> {
     SATURDAY
   ];
   bool isLoggedIn = false;
-
+  bool? isBookByDate;
   @override
   void initState() {
     super.initState();
     fetchDoctorDetails();
+
     SharedPreferences.getInstance().then((value) {
       isLoggedIn = value.getBool("isLoggedIn") ?? false;
+      isBookByDate = value.getBool("isBookByDate") ?? false;
     });
   }
 
@@ -176,7 +182,7 @@ class _DoctorDetailsState extends State<DoctorDetails> {
                   child: CachedNetworkImage(
                     height: 90,
                     width: 110,
-                    fit: BoxFit.cover,
+                    fit: BoxFit.scaleDown,
                     imageUrl: Uri.parse(doctorDetail!.data!.image!).toString(),
                     progressIndicatorBuilder:
                         (context, url, downloadProgress) => Container(
@@ -370,80 +376,101 @@ class _DoctorDetailsState extends State<DoctorDetails> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            AppLocalizations.of(context)!.working_time,
+            AppLocalizations.of(context)!.select_working_time,
             style: TextStyle(fontWeight: FontWeight.w700, fontSize: 19),
           ),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: ClampingScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                childAspectRatio: 3,
-                mainAxisSpacing: 5),
-            itemCount: doctorDetail!.data!.timeTabledata!.length,
-            itemBuilder: (context, index) {
-              return InkWell(
-                onTap: () {
-                  Map map = {
-                    'doctorId': doctorDetail!.data!.userId,
-                    'day': doctorDetail!.data!.timeTabledata![index].day,
-                    'from':doctorDetail!.data!.timeTabledata![index].from,
-                    'to':doctorDetail!.data!.timeTabledata![index].to
-                  };
-                  Navigator.pop(context, map);
-                },
-                child: Container(
-                  child: Row(
-                    children: [
-                      Container(
-                        height: 40,
-                        width: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade300,
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Center(
-                          child:
-                              Image.asset("assets/doctordetails/free-time.png"),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            weekDaysList[
-                                doctorDetail!.data!.timeTabledata![index].day! -
-                                    1],
-                            style: TextStyle(
-                                color: NAVY_BLUE,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            doctorDetail!.data!.timeTabledata![index].from! +
-                                " to " +
-                                doctorDetail!.data!.timeTabledata![index].to!,
-                            style: TextStyle(
-                              color: LIGHT_GREY_TEXT,
-                              fontSize: 9,
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
-                ),
-              );
-            },
+          SizedBox(
+            height: 8,
           ),
+          doctorDetail!.data!.timeTabledata!.length == 0
+              ? Text(
+                  AppLocalizations.of(context)!.no_working_time,
+                  style: Theme.of(context).textTheme.bodyText1,
+                )
+              : GridView.builder(
+                  shrinkWrap: true,
+                  physics: ClampingScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 10,
+                      childAspectRatio: 3,
+                      mainAxisSpacing: 5),
+                  itemCount: doctorDetail!.data!.timeTabledata!.length,
+                  itemBuilder: (context, index) {
+                    return InkWell(
+                      onTap: () {
+                        setState(() {
+                          tappedHour = index;
+                          day = doctorDetail!.data!.timeTabledata![index].day;
+                          from = doctorDetail!.data!.timeTabledata![index].from;
+                          to = doctorDetail!.data!.timeTabledata![index].to;
+
+                          print('is tapped time : $tappedHour');
+                        });
+                      },
+                      child: Container(
+                        decoration: tappedHour != index
+                            ? null
+                            : BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                border: Border.all(color: LIME)),
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 5),
+                          child: Row(
+                            children: [
+                              Container(
+                                height: 40,
+                                width: 40,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade300,
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                child: Center(
+                                  child: Image.asset(
+                                      "assets/doctordetails/free-time.png"),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  isBookByDate == true
+                                      ? SizedBox.shrink()
+                                      : Text(
+                                          weekDaysList[doctorDetail!.data!
+                                                  .timeTabledata![index].day! -
+                                              1],
+                                          style: TextStyle(
+                                              color: NAVY_BLUE,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w700),
+                                        ),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+                                  Text(
+                                    doctorDetail!
+                                            .data!.timeTabledata![index].from! +
+                                        " to " +
+                                        doctorDetail!
+                                            .data!.timeTabledata![index].to!,
+                                    style: TextStyle(
+                                      color: LIGHT_GREY_TEXT,
+                                      fontSize: 9,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
           SizedBox(
             height: 15,
           ),
@@ -501,24 +528,42 @@ class _DoctorDetailsState extends State<DoctorDetails> {
           Expanded(
             child: InkWell(
               onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => isLoggedIn
-                            ? AutoselectBookAppointment(
-                                doctorDetail!.data!.departmentId!,
-                                doctorDetail!.data!.name!,
-                                doctorDetail!.data!.departmentName!,
-                                doctorDetail!.data!.userId!,
-                              )
-                            : LoginScreen()));
+                if (doctorDetail!.data!.timeTabledata!.length == 0)
+                  return;
+                else {
+                  SharedPreferences.getInstance().then((value) {
+                    value.setInt('day', day!);
+                    value.setString('from', from!);
+                    value.setString('to', to!);
+                    value.setInt('doctorId', widget.id);
+                    value.setString('doctorValue', doctorDetail!.data!.name!);
+                    value.setInt(
+                        'departmentId', doctorDetail!.data!.departmentId!);
+                    value.setString(
+                        'departmentValue', doctorDetail!.data!.departmentName!);
+                  });
+                  isLoggedIn
+                      ? Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute<void>(
+                              builder: (BuildContext context) =>
+                                  BookAppointment()),
+                          ModalRoute.withName('/bookAppointment'),
+                        )
+                      : Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => LoginScreen()));
+                }
               },
               child: Container(
                 margin: EdgeInsets.fromLTRB(6, 5, 12, 15),
                 height: 50,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(25),
-                  color: LIME,
+                  color: doctorDetail!.data!.timeTabledata!.length == 0
+                      ? Colors.grey[300]
+                      : LIME,
                 ),
                 child: Center(
                   child: Text(

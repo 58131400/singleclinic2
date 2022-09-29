@@ -17,6 +17,7 @@
     "select_department": "Select Department",
     "select_doctor": "Select Doctors",
     "select_services": "Select Services",
+    "select_working_time": "select working time",
     "name": "Name",
     "phone_number": "Phone Number",
     "date": "Date",
@@ -51,6 +52,7 @@
     "appointment_history": "My Appointments",
     "subscription_plans": "Subscription Plans",
     "departments": "Departments",
+    "department": "Department",
     "facilities": "Facilities",
     "gallery": "Gallery",
     "contact_details": "Contact Detail",
@@ -158,6 +160,9 @@
     "book_appointment_by_doctor":"Book appointment by doctor",
     "select_time":"Select Time",
     "appointment_info": "Appointment Information",
-    "patient_profile":"Patient Profile"
+    "patient_profile":"Patient Profile",
+    "valid_time_choose":"The time you choose is the past. Please choose another time.",
+    "no_working_time":"This doctor don't have working time yet. Please choose other."
+
     
 }

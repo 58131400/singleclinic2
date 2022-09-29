@@ -191,7 +191,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 child: CachedNetworkImage(
                   height: 75,
                   width: 75,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.scaleDown,
                   imageUrl: Uri.parse(imageUrl!).toString(),
                   progressIndicatorBuilder: (context, url, downloadProgress) =>
                       Container(
@@ -228,7 +228,9 @@ class _SearchScreenState extends State<SearchScreen> {
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
                       child: Text(
-                        department!,
+                        AppLocalizations.of(context)!.department +
+                            ' : ' +
+                            department!,
                         style: TextStyle(
                             color: WHITE,
                             fontSize: 10,

@@ -204,16 +204,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       minimumSize: Size.fromHeight(40),
-                      primary: NAVY_BLUE,
+                      backgroundColor: NAVY_BLUE,
                       textStyle: Theme.of(context)
                           .textTheme
                           .apply(bodyColor: Colors.white)
                           .bodyText1),
-                  onPressed: () {
-                    Navigator.push(
+                  onPressed: () async {
+                    await SharedPreferences.getInstance().then((value) {
+                      value.setBool("isBookByDate", true);
+                    });
+                    Navigator.popUntil(context, (route) => route.isFirst);
+                    Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => BookAppointment(isBookByDate: true,),
+                          builder: (context) => BookAppointment(),
                         ));
                   },
                   child: Text(
@@ -222,16 +226,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               ElevatedButton(
                   style: ElevatedButton.styleFrom(
                       minimumSize: Size.fromHeight(40),
-                      primary: NAVY_BLUE,
+                      backgroundColor: NAVY_BLUE,
                       textStyle: Theme.of(context)
                           .textTheme
                           .apply(bodyColor: Colors.white)
                           .bodyText1),
                   onPressed: () {
-                    Navigator.push(
+                    Navigator.popUntil(context, (route) => route.isFirst);
+                    Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => BookAppointment(isBookByDate: false,),
+                          builder: (context) => BookAppointment(
+                            isBookByDate: false,
+                          ),
                         ));
                   },
                   child: Text(AppLocalizations.of(context)!
@@ -260,8 +267,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20))),
                 onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => DoctorList()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => DoctorList(0)));
                 },
                 child: Icon(Icons.arrow_right_alt_outlined),
               )),
@@ -311,8 +320,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   fillColor: Colors.grey,
                   shape: CircleBorder(),
                   onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => DoctorList()));
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => DoctorList(0)));
                   },
                   child: Icon(
                     Icons.keyboard_arrow_right_rounded,
@@ -352,15 +363,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   InkWell buildTopBanner() {
     return InkWell(
-      onTap: dialog,
-      //() {
-      // Navigator.push(
-      //     context,
-      //     MaterialPageRoute(
-      //       builder: (context) =>
-      //           isLoggedIn ? BookAppointment() : LoginScreen(),
-      //     ));
-      //},
+      onTap: !isLoggedIn
+          ? (() {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LoginScreen(),
+                  ));
+            })
+          : dialog,
       child: Stack(
         children: [
           Container(
@@ -470,7 +481,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                 child: CachedNetworkImage(
                   height: 72,
                   width: 72,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.scaleDown,
                   imageUrl: Uri.parse(imageUrl!).toString(),
                   progressIndicatorBuilder: (context, url, downloadProgress) =>
                       Container(
@@ -511,7 +522,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(5, 3, 5, 3),
                       child: Text(
-                        department!,
+                        AppLocalizations.of(context)!.department +
+                            ' : ' +
+                            department!,
                         style: TextStyle(
                             fontFamily: "Avir",
                             color: WHITE,

@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart';
@@ -10,18 +9,16 @@ import 'package:singleclinic/modals/DepartmentsList.dart';
 import 'package:singleclinic/modals/DoctorsAndServices.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:singleclinic/modals/FacilitiesClass.dart';
-import 'package:singleclinic/screens/DoctorsForAppointment.dart';
+import 'package:singleclinic/screens/DoctorDetail.dart';
 import 'package:singleclinic/screens/DoctorList.dart';
-
-import 'package:table_calendar/table_calendar.dart';
-import '../main.dart';
-import '../modals/DoctorDetails.dart';
+import 'package:singleclinic/main.dart';
 
 class BookAppointment extends StatefulWidget {
   @override
   _BookAppointmentState createState() => _BookAppointmentState();
   final bool? isBookByDate;
-  const BookAppointment({super.key, this.isBookByDate});
+
+  const BookAppointment({this.isBookByDate});
 }
 
 class _BookAppointmentState extends State<BookAppointment> {
@@ -36,65 +33,68 @@ class _BookAppointmentState extends State<BookAppointment> {
   int? userId;
   int? facilityId;
 
-  String? selectedFormattedDate;
   TextEditingController? nameController;
   TextEditingController? phoneController;
-  String? day;
-  DateTime selectedDate = DateTime.now();
-  TimeOfDay selectedTime = TimeOfDay.now();
 
-  String? _hour, _minute, _time = " ", formatedTime;
+  DateTime now = DateTime.parse(DateTime.now().toString().substring(0, 10));
+  DateTime? selectedDate;
+  //TimeOfDay selectedTime = TimeOfDay.now();
 
+  String? from, to, formatedTime = "";
+  int? fromHour, fromMinute;
+  int? pickedDay;
   DoctorsAndServices? doctorsAndServices;
   bool isLoadingDoctorAndServices = false;
   bool isAppointmentMadeSuccessfully = false;
-  List<String> monthsList = [
-    "",
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December"
-  ];
-
+  bool? isBookByDate;
   DepartmentsList? departmentsList;
   FacilitiesClass? facilityClass;
 
-  String message = "";
+  String? message = "";
 
   @override
   void initState() {
     super.initState();
-    selectedFormattedDate = selectedDate.day.toString() +
-        " " +
-        monthsList[selectedDate.month] +
-        ", " +
-        selectedDate.year.toString();
-    _time = "";
-
-    getDepartmentsList();
-    getFacilityList();
+    _getDepartmentsList();
+    _getFacilityList();
 
     SharedPreferences.getInstance().then((value) {
       userId = value.getInt("id");
       nameController = TextEditingController(text: value.getString("name"));
       phoneController =
           TextEditingController(text: value.getString("phone_no"));
+      isBookByDate = (value.getBool("isBookByDate") ?? false);
+      if (value.getString("selectedDate") != null)
+        selectedDate = DateTime.parse(value.getString("selectedDate")!);
+      else
+        selectedDate = getInitialDate();
 
-      print('User ID: $userId');
+      facilityValue = value.getString("facilityValue");
+
+      departmentValue = value.getString('departmentValue');
+      departmentId = value.getInt('departmentId');
+
+      doctorValue = value.getString('doctorValue');
+      doctorId = value.getInt('doctorId');
+
+      from = value.getString('from');
+      to = value.getString('to');
+      if (from != null && to != null) formatedTime = from! + ' - ' + to!;
+      fromHour = int.parse(from!.substring(0, 2));
+      fromMinute = int.parse(from!.substring(3, 5));
+      if (value.getInt('day') != null) pickedDay = value.getInt('day')! - 1;
+
+      serviceId = value.getInt('serviceId');
+      serviceValue = value.getString('serviceValue');
+      if (departmentId != null) fetchDoctorsAndServices(departmentId!);
+      message = value.getString('message');
     });
   }
 
   @override
   Widget build(BuildContext context) {
     print("go to BookAppointment");
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: LIGHT_GREY_SCREEN_BG,
@@ -125,13 +125,15 @@ class _BookAppointmentState extends State<BookAppointment> {
                   ),
                   constraints: BoxConstraints(maxWidth: 30, minWidth: 10),
                   padding: EdgeInsets.zero,
-                  onPressed: () {
-                    Navigator.popUntil(context, (route) => route.isFirst);
-                    Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => TabBarScreen(),
-                        ));
+                  onPressed: () async {
+                    await _removeSharedAppointmentAttributes();
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TabBarScreen(),
+                      ),
+                      (Route<dynamic> route) => false,
+                    );
                   },
                 ),
                 SizedBox(
@@ -169,11 +171,11 @@ class _BookAppointmentState extends State<BookAppointment> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    buildPatientInfo(),
+                    _buildPatientInfo(),
                     SizedBox(
                       height: 8,
                     ),
-                    buildAppointmentInfo(),
+                    _buildAppointmentInfo(),
                     SizedBox(
                       height: 16,
                     ),
@@ -188,7 +190,7 @@ class _BookAppointmentState extends State<BookAppointment> {
     }
   }
 
-  Container buildAppointmentInfo() {
+  Container _buildAppointmentInfo() {
     return Container(
       decoration: BoxDecoration(
           color: Colors.white, borderRadius: BorderRadius.circular(2)),
@@ -211,42 +213,42 @@ class _BookAppointmentState extends State<BookAppointment> {
             SizedBox(
               height: 16,
             ),
-            buildFacilityList(),
+            _buildFacilityList(),
             SizedBox(
               height: 16,
             ),
-            widget.isBookByDate == true ? buildDate() : buildDoctorList(),
-            SizedBox(
-              height: 16,
-            ),
-            buildDepartmentList(),
-            SizedBox(
-              height: 16,
-            ),
-            widget.isBookByDate == true ? buildDoctorList() : buildDate(),
-            SizedBox(
-              height: 16,
-            ),
-            buildServiceList(),
-            SizedBox(
-              height: 16,
-            ),
-            buildTime(),
-            SizedBox(
-              height: 16,
-            ),
-            buildMessage(),
+            isBookByDate == true
+                ? Column(
+                    children: [
+                      _buildDate(),
+                      _buildDepartmentList(),
+                      _buildDoctorList(),
+                    ],
+                  )
+                : Column(
+                    children: [
+                      _buildDepartmentList(),
+                      _buildDoctorList(),
+                      _buildDate()
+                    ],
+                  ),
+            _buildTime(),
+            _buildServiceList(),
+            _buildMessage(),
           ],
         ),
       ),
     );
   }
 
-  buildMessage() {
+  _buildMessage() {
     return Row(children: [
       Expanded(
         child: Center(
-          child: FaIcon(FontAwesomeIcons.message),
+          child: FaIcon(
+            FontAwesomeIcons.message,
+            color: doctorValue == null ? Colors.grey[300] : NAVY_BLUE,
+          ),
         ),
         flex: 1,
       ),
@@ -258,10 +260,11 @@ class _BookAppointmentState extends State<BookAppointment> {
               message == ""
                   ? Container()
                   : Text(
-                      AppLocalizations.of(context)!.write_your_message,
+                      AppLocalizations.of(context)!.message,
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
               TextField(
+                enabled: doctorValue == null ? false : true,
                 maxLines: 3,
                 minLines: 1,
                 style: Theme.of(context).textTheme.bodyText1,
@@ -278,6 +281,8 @@ class _BookAppointmentState extends State<BookAppointment> {
                   ),
                 ),
                 onChanged: (val) {
+                  SharedPreferences.getInstance()
+                      .then((value) => value.setString('messages', val));
                   setState(() {
                     message = val;
                   });
@@ -288,115 +293,145 @@ class _BookAppointmentState extends State<BookAppointment> {
     ]);
   }
 
-  buildTime() {
-    return Row(
+  _buildTime() {
+    return Column(
       children: [
-        Expanded(
-          child: Center(
-            child: FaIcon(FontAwesomeIcons.clock),
-          ),
-          flex: 1,
-        ),
-        Expanded(
-          flex: 5,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _time == ""
-                  ? Container()
-                  : Text(
-                      AppLocalizations.of(context)!.time,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-              InkWell(
-                onTap: () {
-                  // _selectTime(context);
-                },
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: 5,
-                    ),
-                    _time == ""
-                        ? Text(
-                            AppLocalizations.of(context)!.select_time,
-                            style: Theme.of(context)
-                                .textTheme
-                                .apply(bodyColor: LIGHT_GREY_TEXT)
-                                .bodyText1,
-                          )
-                        : Text(
-                            formatedTime!,
-                            style: Theme.of(context).textTheme.bodyText1,
-                          ),
-                    Divider(
-                      color: LIGHT_GREY_TEXT,
-                    ),
-                  ],
+        Row(
+          children: [
+            Expanded(
+              child: Center(
+                child: FaIcon(
+                  FontAwesomeIcons.clock,
+                  color: doctorValue == null ? Colors.grey[300] : NAVY_BLUE,
                 ),
               ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Row buildDate() {
-    return Row(
-      children: [
-        Expanded(
-          flex: 1,
-          child: Align(
-            alignment: Alignment.center,
-            child: Icon(
-              Icons.calendar_month,
+              flex: 1,
             ),
-          ),
-        ),
-        Expanded(
-          flex: 5,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(AppLocalizations.of(context)!.date,
-                  style: Theme.of(context).textTheme.bodySmall),
-              InkWell(
-                onTap: () => _selectDate(context),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: 10,
-                    ),
-                    Row(
+            Expanded(
+              flex: 5,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  formatedTime == ""
+                      ? Container()
+                      : Text(
+                          AppLocalizations.of(context)!.time,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                  InkWell(
+                    onTap: () {
+                      doctorValue == null ? null : _selectTime(context);
+                    },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(selectedFormattedDate.toString(),
-                                  style: Theme.of(context).textTheme.bodyText1),
-                              Divider(
-                                color: LIGHT_GREY_TEXT,
+                        SizedBox(
+                          height: 5,
+                        ),
+                        formatedTime == ""
+                            ? Text(
+                                AppLocalizations.of(context)!.select_time,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .apply(bodyColor: LIGHT_GREY_TEXT)
+                                    .bodyText1,
+                              )
+                            : Text(
+                                formatedTime!,
+                                style: Theme.of(context).textTheme.bodyText1,
                               ),
-                            ],
-                          ),
+                        Divider(
+                          color: LIGHT_GREY_TEXT,
                         ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: 16,
         ),
       ],
     );
   }
 
-  buildPatientInfo() {
+  _buildDate() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              flex: 1,
+              child: Align(
+                alignment: Alignment.center,
+                child: Icon(
+                  Icons.calendar_month,
+                  color: (isBookByDate == false && doctorValue == null)
+                      ? Colors.grey[300]
+                      : NAVY_BLUE,
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 5,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(AppLocalizations.of(context)!.date,
+                      style: Theme.of(context).textTheme.bodySmall),
+                  InkWell(
+                    onTap: (isBookByDate == false && doctorValue == null)
+                        ? () {}
+                        : () => _selectDate(context),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(selectedDate.toString().substring(0, 10),
+                                      style: (isBookByDate == false &&
+                                              doctorValue == null)
+                                          ? Theme.of(context)
+                                              .textTheme
+                                              .apply(bodyColor: LIGHT_GREY_TEXT)
+                                              .bodyText1
+                                          : Theme.of(context)
+                                              .textTheme
+                                              .bodyText1),
+                                  Divider(
+                                    color: LIGHT_GREY_TEXT,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: 16,
+        ),
+      ],
+    );
+  }
+
+  _buildPatientInfo() {
     return Container(
       padding: EdgeInsets.fromLTRB(8, 16, 8, 32),
       decoration: BoxDecoration(
@@ -458,185 +493,229 @@ class _BookAppointmentState extends State<BookAppointment> {
     );
   }
 
-  buildServiceList() {
-    return Row(
+  _buildServiceList() {
+    return Column(
       children: [
-        Expanded(
-          child: Center(child: FaIcon(FontAwesomeIcons.briefcaseMedical)),
-          flex: 1,
-        ),
-        Expanded(
-          flex: 5,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              serviceValue == null
-                  ? Container()
-                  : Text(
-                      AppLocalizations.of(context)!.services,
-                      style: Theme.of(context).textTheme.bodySmall,
+        Row(
+          children: [
+            Expanded(
+              child: Center(
+                  child: FaIcon(
+                FontAwesomeIcons.briefcaseMedical,
+                color: doctorValue == null ? Colors.grey[300] : NAVY_BLUE,
+              )),
+              flex: 1,
+            ),
+            Expanded(
+              flex: 5,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  serviceValue == null
+                      ? Container()
+                      : Text(
+                          AppLocalizations.of(context)!.services,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                  DropdownButton<String>(
+                    isExpanded: true,
+                    hint: Text(
+                      isLoadingDoctorAndServices ? LOADING : SELECT_SERVICES,
+                      style: Theme.of(context)
+                          .textTheme
+                          .apply(bodyColor: LIGHT_GREY_TEXT)
+                          .bodyText1,
                     ),
-              DropdownButton<String>(
-                isExpanded: true,
-                hint: Text(
-                  isLoadingDoctorAndServices ? LOADING : SELECT_SERVICES,
-                  style: Theme.of(context)
-                      .textTheme
-                      .apply(bodyColor: LIGHT_GREY_TEXT)
-                      .bodyText1,
-                ),
-                icon: Image.asset(
-                  "assets/bookappointment/down-arrow.png",
-                  height: 15,
-                  width: 15,
-                ),
-                value: serviceValue,
-                items: doctorsAndServices == null
-                    ? []
-                    : List.generate(doctorsAndServices!.data!.services!.length,
-                        (index) {
-                        return DropdownMenuItem(
-                          value:
-                              doctorsAndServices!.data!.services![index].name! +
+                    icon: Image.asset(
+                      "assets/bookappointment/down-arrow.png",
+                      height: 15,
+                      width: 15,
+                    ),
+                    value: serviceValue,
+                    items: doctorsAndServices == null || doctorValue == null
+                        ? []
+                        : List.generate(
+                            doctorsAndServices!.data!.services!.length,
+                            (index) {
+                            return DropdownMenuItem(
+                              value: doctorsAndServices!
+                                      .data!.services![index].name! +
                                   index.toString(),
-                          child: Text(
-                              doctorsAndServices!.data!.services![index].name!),
-                          key: UniqueKey(),
-                          onTap: () {
-                            setState(() {
-                              serviceId =
-                                  doctorsAndServices!.data!.services![index].id;
-                            });
-                          },
-                        );
-                      }),
-                onChanged: (val) {
-                  print(val);
-                  setState(() {
-                    serviceValue = val.toString();
-                  });
-                },
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  buildDoctorList() {
-    return Row(
-      children: [
-        Expanded(
-            flex: 1, child: Center(child: FaIcon(FontAwesomeIcons.userDoctor))),
-        Expanded(
-          flex: 5,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              doctorValue == null
-                  ? Container()
-                  : Text(
-                      isLoadingDoctorAndServices ? LOADING : DOCTORS,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-              InkWell(
-                onTap: () {
-                  _selectDoctorAndTime(context);
-                },
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: 5,
-                    ),
-                    doctorValue == null
-                        ? Text(
-                            AppLocalizations.of(context)!.select_doctor,
-                            style: Theme.of(context)
-                                .textTheme
-                                .apply(bodyColor: LIGHT_GREY_TEXT)
-                                .bodyText1,
-                          )
-                        : Text(
-                            doctorValue!,
-                            style: Theme.of(context).textTheme.bodyText1,
-                          ),
-                    Divider(
-                      color: LIGHT_GREY_TEXT,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  buildDepartmentList() {
-    return Row(
-      children: [
-        Expanded(
-            flex: 1,
-            child: Center(child: FaIcon(FontAwesomeIcons.stethoscope))),
-        Expanded(
-          flex: 5,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              departmentValue == null
-                  ? Container()
-                  : Text(
-                      AppLocalizations.of(context)!.departments,
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-              DropdownButton(
-                hint: Text(
-                  AppLocalizations.of(context)!.select_department,
-                  style: Theme.of(context)
-                      .textTheme
-                      .apply(bodyColor: LIGHT_GREY_TEXT)
-                      .bodyText1,
-                ),
-                isExpanded: true,
-                value: departmentValue,
-                items: List.generate(departmentsList!.data!.length, (index) {
-                  return DropdownMenuItem(
-                    value: departmentsList!.data![index].name,
-                    child: Text(departmentsList!.data![index].name.toString(),
-                        style: Theme.of(context).textTheme.bodyText1),
-                    onTap: () {
+                              child: Text(doctorsAndServices!
+                                  .data!.services![index].name!),
+                              key: UniqueKey(),
+                              onTap: () {
+                                setState(() {
+                                  serviceId = doctorsAndServices!
+                                      .data!.services![index].id;
+                                  SharedPreferences.getInstance().then(
+                                      (value) => value.setInt(
+                                          'serviceId', serviceId!));
+                                });
+                              },
+                            );
+                          }),
+                    onChanged: (val) {
+                      print(val);
+                      SharedPreferences.getInstance().then((value) =>
+                          value.setString('serviceValue', val.toString()));
                       setState(() {
-                        departmentId = departmentsList!.data![index].id;
+                        serviceValue = val.toString();
                       });
-                      fetchDoctorsAndServices(
-                          departmentsList!.data![index].id!);
                     },
-                    key: UniqueKey(),
-                  );
-                }),
-                icon: Image.asset(
-                  "assets/bookappointment/down-arrow.png",
-                  height: 15,
-                  width: 15,
-                ),
-                onChanged: (val) {
-                  print(val);
-                  setState(() {
-                    departmentValue = val.toString();
-                  });
-                },
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: 16,
         ),
       ],
     );
   }
 
-  buildFacilityList() {
+  _buildDoctorList() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+                flex: 1,
+                child: Center(
+                    child: FaIcon(FontAwesomeIcons.userDoctor,
+                        color: departmentValue == null
+                            ? Colors.grey[300]
+                            : NAVY_BLUE))),
+            Expanded(
+              flex: 5,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  doctorValue == null
+                      ? Container()
+                      : Text(
+                          isLoadingDoctorAndServices ? LOADING : DOCTORS,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                  InkWell(
+                    onTap: departmentValue == null
+                        ? () {}
+                        : () {
+                            _selectDoctorAndTime(context, departmentId!);
+                          },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 5,
+                        ),
+                        doctorValue == null
+                            ? Text(
+                                AppLocalizations.of(context)!.select_doctor,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .apply(bodyColor: LIGHT_GREY_TEXT)
+                                    .bodyText1,
+                              )
+                            : Text(
+                                doctorValue!,
+                                style: Theme.of(context).textTheme.bodyText1,
+                              ),
+                        Divider(
+                          color: LIGHT_GREY_TEXT,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: 16,
+        ),
+      ],
+    );
+  }
+
+  _buildDepartmentList() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+                flex: 1,
+                child: Center(
+                    child: FaIcon(FontAwesomeIcons.stethoscope,
+                        color: NAVY_BLUE))),
+            Expanded(
+              flex: 5,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.departments,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  DropdownButton(
+                    hint: Text(
+                      AppLocalizations.of(context)!.select_department,
+                      style: Theme.of(context)
+                          .textTheme
+                          .apply(bodyColor: LIGHT_GREY_TEXT)
+                          .bodyText1,
+                    ),
+                    isExpanded: true,
+                    value: departmentValue,
+                    items:
+                        List.generate(departmentsList!.data!.length, (index) {
+                      return DropdownMenuItem(
+                        value: departmentsList!.data![index].name,
+                        child: Text(
+                            departmentsList!.data![index].name.toString(),
+                            style: Theme.of(context).textTheme.bodyText1),
+                        onTap: () async {
+                          setState(() {
+                            departmentId = departmentsList!.data![index].id;
+                            print(departmentId);
+                          });
+                          await fetchDoctorsAndServices(
+                              departmentsList!.data![index].id!);
+                        },
+                        key: UniqueKey(),
+                      );
+                    }),
+                    icon: Image.asset(
+                      "assets/bookappointment/down-arrow.png",
+                      height: 15,
+                      width: 15,
+                    ),
+                    onChanged: (val) async {
+                      print(val);
+
+                      setState(() {
+                        departmentValue = val.toString();
+                      });
+                      await SharedPreferences.getInstance().then((value) =>
+                          value.setString('departmentValue', departmentValue!));
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        SizedBox(
+          height: 16,
+        ),
+      ],
+    );
+  }
+
+  _buildFacilityList() {
     return Row(children: [
       Expanded(
         flex: 1,
@@ -677,6 +756,7 @@ class _BookAppointmentState extends State<BookAppointment> {
                   onTap: () {
                     setState(() {
                       facilityId = facilityClass!.data!.data![index].id;
+
                       print('facilityId: ' + facilityId.toString());
                     });
                   },
@@ -690,9 +770,11 @@ class _BookAppointmentState extends State<BookAppointment> {
               ),
               onChanged: (val) {
                 print(val);
-                setState(() {
+                setState(() async {
                   facilityValue = val.toString();
                   print('facilityValue ' + facilityValue.toString());
+                  await SharedPreferences.getInstance().then((value) =>
+                      value.setString('facilityValue', facilityValue!));
                 });
               },
             )
@@ -708,7 +790,7 @@ class _BookAppointmentState extends State<BookAppointment> {
           Expanded(
             child: InkWell(
               onTap: () {
-                bookAppointment();
+                _bookAppointment();
               },
               child: Container(
                 margin: EdgeInsets.fromLTRB(12, 5, 12, 15),
@@ -737,66 +819,40 @@ class _BookAppointmentState extends State<BookAppointment> {
   Future<Null> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
         context: context,
-        initialDate: selectedDate,
+        initialDate: getInitialDate(),
         initialDatePickerMode: DatePickerMode.day,
         currentDate: selectedDate,
-        firstDate: DateTime(2020),
-        lastDate: DateTime(2101));
-    if (picked == null)
-      return;
-    else
-      setState(() {
-        selectedDate = picked;
-        print(selectedDate.toString().substring(0, 10));
-        selectedFormattedDate = selectedDate.day.toString() +
-            " " +
-            monthsList[selectedDate.month] +
-            ", " +
-            selectedDate.year.toString();
+        firstDate: DateTime.now(),
+        lastDate: getLastDay(),
+        selectableDayPredicate: (day) {
+          return isBookByDate == true ? true : getDayEnable(day);
+        });
 
-        print(selectedFormattedDate);
+    if (picked != null)
+      await SharedPreferences.getInstance().then((value) {
+        value.setString("selectedDate", selectedDate.toString());
       });
+    setState(() {
+      selectedDate = picked;
+
+      print(selectedDate);
+    });
   }
 
-  Future<Null> _selectTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      builder: (BuildContext? context, Widget? child) {
-        return MediaQuery(
-          data: MediaQuery.of(context!).copyWith(alwaysUse24HourFormat: false),
-          child: child!,
-        );
-      },
-      initialTime: selectedTime,
-    );
+  Future<void> _selectTime(BuildContext context) async {
+    await SharedPreferences.getInstance().then((value) {
+      value.setString("selectedDate", selectedDate.toString());
+    });
+    print(selectedDate);
+    var picked = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DoctorDetails(doctorId!),
+        ));
     print(picked);
-    if ((DateTime.now().minute >= selectedTime.minute &&
-        DateTime.now().hour >= selectedTime.hour &&
-        DateTime.now().day == selectedDate.day)) {
-      //custom
-      setState(() {
-        if (picked != null) selectedTime = picked;
-        print("-> Condition true");
-      });
-    } else {
-      setState(() {
-        print("-> Condition false");
-        selectedTime = picked!;
-
-        _hour = selectedTime.hour < 10
-            ? "0" + selectedTime.hour.toString()
-            : selectedTime.hour.toString();
-        _minute = selectedTime.minute < 10
-            ? "0" + selectedTime.minute.toString()
-            : selectedTime.minute.toString();
-        _time = _hour! + ":" + _minute!;
-
-        print(_time);
-      });
-    }
   }
 
-  getDepartmentsList() async {
+  _getDepartmentsList() async {
     print('Getting departments');
 
     final response = await get(Uri.parse("$SERVER_ADDRESS/api/getdepartment"));
@@ -812,7 +868,7 @@ class _BookAppointmentState extends State<BookAppointment> {
     }
   }
 
-  getFacilityList() async {
+  _getFacilityList() async {
     print('Getting facility----------------------------');
 
     final response =
@@ -829,13 +885,6 @@ class _BookAppointmentState extends State<BookAppointment> {
   }
 
   fetchDoctorsAndServices(int id) async {
-    setState(() {
-      doctorValue = null;
-      serviceValue = null;
-      isLoadingDoctorAndServices = true;
-      print(doctorValue.toString());
-      doctorsAndServices = null;
-    });
     final response = await get(Uri.parse(
         "$SERVER_ADDRESS/api/getdoctorandservicebydeptid?department_id=$id"));
     final jsonResponse = jsonDecode(response.body);
@@ -848,68 +897,90 @@ class _BookAppointmentState extends State<BookAppointment> {
     }
   }
 
-  bookAppointment() async {
+  _bookAppointment() async {
+    print('-------------function book appointment-----------');
     if (departmentId == null ||
         serviceId == null ||
         doctorId == null ||
-        _time == "") {
+        facilityValue == null) {
       messageDialog("Error", ENTER_ALL_FIELDS_TO_MAKE_APPOINTMENT);
     } else {
-      dialog();
-
-      print("department_id:" +
-          departmentId.toString() +
-          "\n" +
-          "service_id:" +
-          serviceId.toString() +
-          "\n" +
-          "doctor_id:" +
-          doctorId.toString() +
-          "\n" +
-          "name:" +
-          nameController!.text +
-          "\n" +
-          "phone_no:" +
-          phoneController!.text +
-          "\n" +
-          "date:" +
-          selectedDate.toString().substring(0, 10) +
-          "\n" +
-          "time:" +
-          _time! +
-          "\n" +
-          "user_id:" +
-          userId.toString() +
-          "\n" +
-          "messages:" +
-          message);
-      final response =
-          await post(Uri.parse("$SERVER_ADDRESS/api/bookappointment"), body: {
-        "department_id": departmentId.toString(),
-        "service_id": serviceId.toString(),
-        "doctor_id": doctorId.toString(),
-        "name": nameController!.text,
-        "phone_no": phoneController!.text,
-        "date": selectedDate.toString().substring(0, 10),
-        "time": _time,
-        "user_id": userId.toString(),
-        "messages": message,
-      });
-
-      final jsonResponse = jsonDecode(response.body);
-      print(jsonResponse);
-      if (response.statusCode == 200 && jsonResponse['status'] == 1) {
-        print("Success");
-        setState(() {
-          Navigator.pop(context);
-          messageDialog("Successful", jsonResponse['msg']);
-          isAppointmentMadeSuccessfully = true;
-        });
+      if (!isValidTime()) {
+        messageDialog("Error", AppLocalizations.of(context)!.valid_time_choose);
       } else {
-        Navigator.pop(context);
-        messageDialog("Error", jsonResponse['msg']);
+        dialog();
+
+        print("department_id:" +
+            departmentId.toString() +
+            "\n" +
+            "service_id:" +
+            serviceId.toString() +
+            "\n" +
+            "doctor_id:" +
+            doctorId.toString() +
+            "\n" +
+            "name:" +
+            nameController!.text +
+            "\n" +
+            "phone_no:" +
+            phoneController!.text +
+            "\n" +
+            "date:" +
+            selectedDate.toString().substring(0, 10) +
+            "\n" +
+            "time:" +
+            from! +
+            "\n" +
+            "user_id:" +
+            userId.toString() +
+            "\n" +
+            "messages:" +
+            message!);
+        final response =
+            await post(Uri.parse("$SERVER_ADDRESS/api/bookappointment"), body: {
+          "department_id": departmentId.toString(),
+          "service_id": serviceId.toString(),
+          "doctor_id": doctorId.toString(),
+          "name": nameController!.text,
+          "phone_no": phoneController!.text,
+          "date": selectedDate.toString().substring(0, 10),
+          "time": from,
+          "user_id": userId.toString(),
+          "messages": message,
+        });
+
+        final jsonResponse = jsonDecode(response.body);
+        print(jsonResponse);
+        if (response.statusCode == 200 && jsonResponse['status'] == 1) {
+          print("Success");
+          await _removeSharedAppointmentAttributes();
+          setState(() {
+            Navigator.pop(context);
+            messageDialog("Successful", jsonResponse['msg']);
+            isAppointmentMadeSuccessfully = true;
+          });
+        } else {
+          Navigator.pop(context);
+          messageDialog("Error", jsonResponse['msg']);
+        }
       }
     }
+  }
+
+  Future<void> _removeSharedAppointmentAttributes() async {
+    await SharedPreferences.getInstance().then((value) {
+      value.remove("selectedDate");
+      value.remove("facilityValue");
+      value.remove('departmentValue');
+      value.remove('departmentId');
+      value.remove('doctorValue');
+      value.remove('doctorId');
+      value.remove('from');
+      value.remove('to');
+      value.remove('serviceId');
+      value.remove('serviceValue');
+      value.remove('message');
+    });
   }
 
   dialog() {
@@ -970,7 +1041,7 @@ class _BookAppointmentState extends State<BookAppointment> {
               TextButton(
                 onPressed: () async {
                   if (isAppointmentMadeSuccessfully) {
-                    Navigator.popUntil(context, (route) => route.isFirst);
+                    Navigator.pop(context);
                     Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
@@ -994,39 +1065,87 @@ class _BookAppointmentState extends State<BookAppointment> {
         });
   }
 
-  _selectDoctorAndTime(BuildContext context) async {
-    final result = await Navigator.push(
+  _selectDoctorAndTime(BuildContext context, int id) async {
+    await SharedPreferences.getInstance().then((value) {
+      value.setString("selectedDate", selectedDate.toString());
+    });
+    print(selectedDate);
+    final result = await Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => DoctorList(),
+          builder: (context) => DoctorList(id),
         ));
     print('result : $result');
     if (!mounted) {
       print('mounted = false');
       return;
-    } else {
-      fetchDoctorDetails(result['doctorId']);
+    }
+    if (result != null) {
       setState(() {
         formatedTime = result['from'] + ' - ' + result['to'];
-        _time = result['from'];
+        from = result['from'];
+        to = result['to'];
+        doctorId = result['doctorId'];
+        doctorValue = result['name'];
+        fromHour = int.parse(from!.substring(0, 2));
+        facilityValue = result['facilityName'];
+        fromMinute = int.parse(from!.substring(3, 5));
+        print('from hour: $fromHour');
+        print('from minute: $fromMinute');
       });
     }
   }
 
-  fetchDoctorDetails(int id) async {
-    final response =
-        await get(Uri.parse("$SERVER_ADDRESS/api/doctordetails?id=${id}"));
+  bool isValidTime() {
+    print('---------------------function is valid time---------');
+    selectedDate = DateTime.parse(selectedDate.toString().substring(0, 10));
+    print('selectedDate: $selectedDate');
+    if (selectedDate!.isBefore(now) ||
+        (selectedDate!.isAtSameMomentAs(now) &&
+            fromHour! < DateTime.now().hour) ||
+        (selectedDate!.isAtSameMomentAs(now) &&
+            fromHour == DateTime.now().hour &&
+            fromMinute! <= DateTime.now().minute))
+      return false;
+    else
+      return true;
+  }
 
-    print(response.request);
+  bool getDayEnable(DateTime day) {
+    print("----------function getDayEnable");
 
-    final jsonResponse = jsonDecode(response.body);
+    if (day.weekday == pickedDay) {
+      print(day);
+      return true;
+    } else
+      return false;
+  }
 
-    print(jsonResponse);
-
-    if (response.statusCode == 200 && jsonResponse['status'] == 1) {
-      setState(() {
-        doctorValue = DoctorDetail.fromJson(jsonResponse).data!.name;
-      });
+  getInitialDate() {
+    print("--------------function getInitialDate");
+    if (isBookByDate!)
+      return DateTime.now();
+    else {
+      var temp = DateTime.now();
+      while (temp.weekday != pickedDay) {
+        print(temp.weekday);
+        temp = temp.add(Duration(days: 1));
+      }
+      return temp;
     }
+  }
+
+  getLastDay() {
+    print("---------fucntion getlastday---------");
+    var lastDay;
+    if (now.month == DateTime.december)
+      lastDay = DateTime(now.year + 1, DateTime.january,
+          DateTime(now.year + 1, now.month + 2, 0).day);
+    else {
+      lastDay = DateTime(
+          now.year, now.month + 1, DateTime(now.year, now.month + 2, 0).day);
+    }
+    print(lastDay);
+    return lastDay;
   }
 }

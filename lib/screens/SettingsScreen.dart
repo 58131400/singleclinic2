@@ -186,7 +186,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   profileCard(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30)),
         color: Colors.white,
       ),
       child: InkWell(
