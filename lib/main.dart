@@ -17,12 +17,13 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:singleclinic/screens/SplashScreen.dart';
 
 import 'notificationTesting/notificationHelper.dart';
+import 'utils/shared_preferences_utils.dart';
 
 FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
 
-String SERVER_ADDRESS = "http://192.168.1.6:80/PHPScript";
+//String SERVER_ADDRESS = "http://192.168.1.6:80/PHPScript";
 //String SERVER_ADDRESS = "http://192.168.101.24:80/PHPScript";
-//String SERVER_ADDRESS = "http://192.168.1.13:80/PHPScript";
+String SERVER_ADDRESS = "http://192.168.1.14:80/PHPScript";
 MyNotificationHelper notificationHelper = MyNotificationHelper();
 final String serverToken =
     // "AAAAO2Co7iU:APA91bHzp5j7Do_A_LAFUpwLzqNESEYUUC_At6nLZoB6yH1wmWFsfsvKjOplY9cYH-pJzpVfYTZl68oFkip9F-VlXqr4oB-NA9QuJ1ZMBLPLfXh_mn4taaQR7cXEtw1j2Ryqka2kAlqy";
@@ -49,7 +50,9 @@ void main() async {
   notificationHelper.initialize();
 
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-
+  await CommonSharedPreferences.init();
+  await CommonSharedPreferences.clearBookAppointmentInfo();
+  await CommonSharedPreferences.clearUserImage();
   runApp(const SingleClinic());
 }
 

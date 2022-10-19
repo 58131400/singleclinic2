@@ -162,7 +162,10 @@
     "appointment_info": "Appointment Information",
     "patient_profile":"Patient Profile",
     "valid_time_choose":"The time you choose is the past. Please choose another time.",
-    "no_working_time":"This doctor don't have working time yet. Please choose other."
+    "no_working_time":"This doctor don't have working time yet. Please choose other.",
+    "error":"Error",
+    "book_appointment_successful":"Book Appointment Successfull!",
+    "book_appointment_failled":"Book Appointment Failled!"
 
     
 }

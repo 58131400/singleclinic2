@@ -161,6 +161,9 @@
     "select_time":"Chọn giờ khám",
     "appointment_info": "Thông tin lịch khám",
     "patient_profile":"Hồ sơ bệnh nhân",
-    "valid_time_choose":"The time you choose is the past. Please choose another time.",
-    "no_working_time":"Bác sĩ này chưa có thời gian làm việc. Vui lòng chọn bác sĩ khác."
+    "valid_time_choose":"Bạn đã chọn giờ khám không hợp lệ. Vui lòng chọn giờ khám khác.",
+    "no_working_time":"Bác sĩ này chưa có thời gian làm việc. Vui lòng chọn bác sĩ khác.",
+    "error":"Lỗi",
+    "book_appointment_successful":"Đặt lịch khám thành công!",
+    "book_appointment_failled":"Đặt lịch khám thất bại!"
 }

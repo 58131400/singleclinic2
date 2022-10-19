@@ -6,11 +6,11 @@ import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:singleclinic/AllText.dart';
 import 'package:singleclinic/modals/DoctorDetails.dart';
-import 'package:singleclinic/screens/AutoselectBookAppointment.dart';
 import 'package:singleclinic/screens/BookAppointment.dart';
 import 'package:singleclinic/screens/ChatScreen.dart';
 import 'package:singleclinic/screens/LoginScreen.dart';
 import 'package:singleclinic/screens/ReviewScreen.dart';
+import 'package:singleclinic/utils/shared_preferences_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -42,6 +42,9 @@ class _DoctorDetailsState extends State<DoctorDetails> {
   ];
   bool isLoggedIn = false;
   bool? isBookByDate;
+  DateTime? selectedDate;
+  List<TimeTabledata>? listWorking;
+
   @override
   void initState() {
     super.initState();
@@ -49,8 +52,10 @@ class _DoctorDetailsState extends State<DoctorDetails> {
 
     SharedPreferences.getInstance().then((value) {
       isLoggedIn = value.getBool("isLoggedIn") ?? false;
-      isBookByDate = value.getBool("isBookByDate") ?? false;
     });
+    isBookByDate = CommonSharedPreferences.getIsBookByDate() ?? false;
+    if (CommonSharedPreferences.getSelectedDate() != null)
+      selectedDate = DateTime.parse(CommonSharedPreferences.getSelectedDate()!);
   }
 
   @override
@@ -367,6 +372,23 @@ class _DoctorDetailsState extends State<DoctorDetails> {
     );
   }
 
+  List<TimeTabledata>? getListWorking() {
+    var timeTable = doctorDetail!.data!.timeTabledata!;
+    if (isBookByDate == true) {
+      var dayOfWeek = selectedDate!.weekday + 1;
+      List<TimeTabledata> list = [];
+
+      for (var element in timeTable) {
+        if (element.day == dayOfWeek) {
+          list.add(element);
+          break;
+        }
+      }
+      return list;
+    } else
+      return timeTable;
+  }
+
   workingTimeAndServiceCard() {
     return Container(
       color: WHITE,
@@ -382,7 +404,7 @@ class _DoctorDetailsState extends State<DoctorDetails> {
           SizedBox(
             height: 8,
           ),
-          doctorDetail!.data!.timeTabledata!.length == 0
+          listWorking!.length == 0
               ? Text(
                   AppLocalizations.of(context)!.no_working_time,
                   style: Theme.of(context).textTheme.bodyText1,
@@ -395,15 +417,15 @@ class _DoctorDetailsState extends State<DoctorDetails> {
                       crossAxisSpacing: 10,
                       childAspectRatio: 3,
                       mainAxisSpacing: 5),
-                  itemCount: doctorDetail!.data!.timeTabledata!.length,
+                  itemCount: listWorking!.length,
                   itemBuilder: (context, index) {
                     return InkWell(
                       onTap: () {
                         setState(() {
                           tappedHour = index;
-                          day = doctorDetail!.data!.timeTabledata![index].day;
-                          from = doctorDetail!.data!.timeTabledata![index].from;
-                          to = doctorDetail!.data!.timeTabledata![index].to;
+                          day = listWorking![index].day;
+                          from = listWorking![index].from;
+                          to = listWorking![index].to;
 
                           print('is tapped time : $tappedHour');
                         });
@@ -440,9 +462,8 @@ class _DoctorDetailsState extends State<DoctorDetails> {
                                   isBookByDate == true
                                       ? SizedBox.shrink()
                                       : Text(
-                                          weekDaysList[doctorDetail!.data!
-                                                  .timeTabledata![index].day! -
-                                              1],
+                                          weekDaysList[
+                                              listWorking![index].day! - 1],
                                           style: TextStyle(
                                               color: NAVY_BLUE,
                                               fontSize: 12,
@@ -452,11 +473,9 @@ class _DoctorDetailsState extends State<DoctorDetails> {
                                     height: 5,
                                   ),
                                   Text(
-                                    doctorDetail!
-                                            .data!.timeTabledata![index].from! +
+                                    listWorking![index].from! +
                                         " to " +
-                                        doctorDetail!
-                                            .data!.timeTabledata![index].to!,
+                                        listWorking![index].to!,
                                     style: TextStyle(
                                       color: LIGHT_GREY_TEXT,
                                       fontSize: 9,
@@ -511,7 +530,8 @@ class _DoctorDetailsState extends State<DoctorDetails> {
                         MaterialPageRoute(
                             builder: (context) => ChatScreen(
                                 doctorDetail!.data!.name!,
-                                doctorDetail!.data!.userId.toString())));
+                                doctorDetail!.data!.userId.toString(),
+                                userProfile: doctorDetail!.data!.image!,)));
                   },
                   child: Container(
                     height: 50,
@@ -598,6 +618,7 @@ class _DoctorDetailsState extends State<DoctorDetails> {
     if (response.statusCode == 200 && jsonResponse['status'] == 1) {
       setState(() {
         doctorDetail = DoctorDetail.fromJson(jsonResponse);
+        listWorking = getListWorking();
       });
     }
   }

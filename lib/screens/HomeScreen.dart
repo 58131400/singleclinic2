@@ -22,6 +22,7 @@ import 'package:singleclinic/screens/DoctorList.dart';
 import 'package:singleclinic/screens/LoginScreen.dart';
 import 'package:singleclinic/screens/SearchScreen.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:singleclinic/utils/shared_preferences_utils.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -44,6 +45,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     fetchDoctorsList();
+
     SharedPreferences.getInstance().then((value) {
       setState(() {
         isLoggedIn = value.getBool("isLoggedIn") ?? false;
@@ -106,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void dispose() {
     super.dispose();
     print("Dispose called");
-    if (timer != null) timer!.cancel();
+    if (timer != null && timer!.isActive) timer!.cancel();
     Map<String, dynamic> presenceStatusFalse = {
       'presence': false,
       'last_seen': DateTime.now().toString(),
@@ -209,10 +211,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           .textTheme
                           .apply(bodyColor: Colors.white)
                           .bodyText1),
-                  onPressed: () async {
-                    await SharedPreferences.getInstance().then((value) {
-                      value.setBool("isBookByDate", true);
-                    });
+                  onPressed: () {
+                    CommonSharedPreferences.setIsBookByDate(true);
+
                     Navigator.popUntil(context, (route) => route.isFirst);
                     Navigator.pushReplacement(
                         context,
@@ -232,13 +233,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                           .apply(bodyColor: Colors.white)
                           .bodyText1),
                   onPressed: () {
+                    CommonSharedPreferences.setIsBookByDate(false);
                     Navigator.popUntil(context, (route) => route.isFirst);
                     Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => BookAppointment(
-                            isBookByDate: false,
-                          ),
+                          builder: (context) => BookAppointment(),
                         ));
                   },
                   child: Text(AppLocalizations.of(context)!
@@ -267,10 +267,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20))),
                 onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => DoctorList(0)));
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => DoctorList(0)));
                 },
                 child: Icon(Icons.arrow_right_alt_outlined),
               )),
@@ -320,10 +318,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                   fillColor: Colors.grey,
                   shape: CircleBorder(),
                   onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => DoctorList(0)));
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => DoctorList(0)));
                   },
                   child: Icon(
                     Icons.keyboard_arrow_right_rounded,
@@ -581,6 +577,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         myList.addAll(doctorsList!.data!.data!);
         nextUrl = doctorsList!.data!.nextPageUrl!;
       });
+      // _streamController.add(myList);
     }
   }
 
@@ -617,9 +614,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {
       updateUserPresence();
     } else {
-      if (timer != null) {
-        timer!.cancel();
-      }
+      if (timer != null && timer!.isActive) timer!.cancel();
       Map<String, dynamic> presenceStatusFalse = {
         'presence': false,
         'last_seen': DateTime.now().toUtc().toString(),

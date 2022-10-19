@@ -11,6 +11,7 @@ import 'package:singleclinic/screens/ForgetPassword.dart';
 import 'package:singleclinic/screens/SignUpScreen.dart';
 import 'package:singleclinic/services/AuthService.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:singleclinic/utils/firebase_database.dart';
 import '../main.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -530,57 +531,36 @@ class _LoginScreenState extends State<LoginScreen> {
     print(response.data);
 
     if (response.statusCode == 200 && response.data['status'] == 1) {
-      print(response.toString());
-      FirebaseDatabase.instance
-          .ref()
-          .child(response.data['data']['id'].toString())
-          .update({
-        "name": response.data['data']['name'],
-        "usertype": response.data['data']['usertype'],
-        "profile": response.data['data']['usertype'].toString() == "1"
-            ? "profile/" +
-                response.data['data']['profile_pic'].toString().split("/").last
-            : "doctor/" +
-                response.data['data']['profile_pic'].toString().split("/").last,
-      }).then((value) async {
-        print("\n\nData added in cloud firebase\n\n");
-        FirebaseDatabase.instance
-            .ref()
-            .child(response.data['data']['id'].toString())
-            .child("TokenList")
-            .set({"device": await firebaseMessaging.getToken()}).then(
-                (value) async {
-          print("\n\nData added in firebase database\n\n");
-          await SharedPreferences.getInstance().then((value) {
-            value.setBool("isLoggedIn", true);
-            value.setString("name", response.data['data']['name'] ?? "");
-            value.setString("email", response.data['data']['email'] ?? "");
-            value.setString(
-                "phone_no", response.data['data']['phone_no'] ?? "");
-            value.setString("password", password);
-            value.setString(
-                "profile_pic", response.data['data']['profile_pic'] ?? "");
-            value.setInt("id", response.data['data']['id']);
-            value.setString("usertype", response.data['data']['usertype']);
-            value.setString("uid", response.data['data']['id'].toString());
-          });
-
-          print("\n\nData added in device\n\n");
-
-          Navigator.popUntil(context, (route) => route.isFirst);
-          Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => TabBarScreen(),
-              ));
-        }).catchError((e) {
-          Navigator.pop(context);
-          errorDialog(e.toString());
-        });
-      }).catchError((e) {
-        Navigator.pop(context);
-        errorDialog(e.toString());
+      Map<String, dynamic> userData = {
+        "id": response.data["data"]["id"],
+        "name": response.data["data"]["name"],
+        "profile_pic": response.data["data"]["profile_pic"],
+        "usertype": response.data["data"]["usertype"]
+      };
+      CommonFirebaseDatabase.updateUserProfileToDatabase(userData);
+      CommonFirebaseDatabase.saveToken(await firebaseMessaging.getToken(),
+          response.data['data']['id'].toString());
+      await SharedPreferences.getInstance().then((value) {
+        value.setBool("isLoggedIn", true);
+        value.setString("name", response.data['data']['name'] ?? "");
+        value.setString("email", response.data['data']['email'] ?? "");
+        value.setString("phone_no", response.data['data']['phone_no'] ?? "");
+        value.setString("password", password);
+        value.setString(
+            "profile_pic", response.data['data']['profile_pic'] ?? "");
+        value.setInt("id", response.data['data']['id']);
+        value.setString("usertype", response.data['data']['usertype']);
+        value.setString("uid", response.data['data']['id'].toString());
       });
+
+      print("\n\nData added in device\n\n");
+
+      Navigator.popUntil(context, (route) => route.isFirst);
+      Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TabBarScreen(),
+          ));
     } else {
       Navigator.pop(context);
       print("Error" + response.toString());

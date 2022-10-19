@@ -1,15 +1,21 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 //import 'package:dio/dio.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:singleclinic/AllText.dart';
+import 'package:singleclinic/utils/firebase_database.dart';
+import 'package:singleclinic/utils/shared_preferences_utils.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import '../main.dart';
+import 'package:singleclinic/main.dart';
 
 class UpdateProfileScreen extends StatefulWidget {
   @override
@@ -36,10 +42,15 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   @override
   void initState() {
     super.initState();
+    print(" start init state");
+    path = CommonSharedPreferences.getNewProfileImg() ?? "";
+
+    imageUrl = CommonSharedPreferences.getProfileImg() ?? "";
+    print(imageUrl);
 
     SharedPreferences.getInstance().then((value) {
       setState(() {
-        imageUrl = value.getString("profile_pic")!;
+        // imageUrl = value.getString("profile_pic")!;
         id = value.getInt("id");
         nameController = TextEditingController(text: value.getString("name"));
         emailController = TextEditingController(text: value.getString("email"));
@@ -52,11 +63,12 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
             TextEditingController(text: value.getString("password"));
       });
     });
+    print(" end init state");
   }
 
   @override
   Widget build(BuildContext context) {
-     print("go to UpdateProfileScreen");
+    print("go to UpdateProfileScreen");
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -88,7 +100,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                   constraints: BoxConstraints(maxWidth: 30, minWidth: 10),
                   padding: EdgeInsets.zero,
                   onPressed: () {
-                    Navigator.pop(context);
+                    Navigator.pop(context, false);
                   },
                 ),
                 SizedBox(
@@ -125,42 +137,42 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                       Stack(
                         children: [
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(70),
-                            child: Container(
-                              height: 140,
-                              width: 140,
-                              child: path.isEmpty
-                                  ? CachedNetworkImage(
-                                      fit: BoxFit.cover,
-                                      imageUrl: Uri.parse(imageUrl).toString(),
-                                      progressIndicatorBuilder:
-                                          (context, url, downloadProgress) =>
-                                              Container(
-                                                  child: Center(
-                                                      child: Icon(
-                                        Icons.account_circle,
-                                        size: 140,
-                                        color: LIGHT_GREY_TEXT,
-                                      ))),
-                                      errorWidget: (context, url, error) =>
-                                          Container(
-                                        child: Center(
-                                          child: Icon(
-                                            Icons.account_circle,
-                                            size: 140,
-                                            color: LIGHT_GREY_TEXT,
+                              borderRadius: BorderRadius.circular(70),
+                              child: Container(
+                                height: 140,
+                                width: 140,
+                                child: path.isEmpty
+                                    ? CachedNetworkImage(
+                                        fit: BoxFit.cover,
+                                        imageUrl:
+                                            Uri.parse(imageUrl).toString(),
+                                        progressIndicatorBuilder:
+                                            (context, url, downloadProgress) =>
+                                                Container(
+                                                    child: Center(
+                                                        child: Icon(
+                                          Icons.account_circle,
+                                          size: 140,
+                                          color: LIGHT_GREY_TEXT,
+                                        ))),
+                                        errorWidget: (context, url, error) =>
+                                            Container(
+                                          child: Center(
+                                            child: Icon(
+                                              Icons.account_circle,
+                                              size: 140,
+                                              color: LIGHT_GREY_TEXT,
+                                            ),
                                           ),
                                         ),
+                                      )
+                                    : Image.file(
+                                        File(path),
+                                        height: 140,
+                                        width: 140,
+                                        fit: BoxFit.cover,
                                       ),
-                                    )
-                                  : Image.file(
-                                      File(path),
-                                      height: 140,
-                                      width: 140,
-                                      fit: BoxFit.cover,
-                                    ),
-                            ),
-                          ),
+                              )),
                           Container(
                             height: 137,
                             width: 137,
@@ -486,8 +498,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                 child: Text(
                   UPDATE,
                   style: TextStyle(
-                      color: WHITE,
-                      fontWeight: FontWeight.w700, fontSize: 17),
+                      color: WHITE, fontWeight: FontWeight.w700, fontSize: 17),
                 ),
               ),
             ),
@@ -507,6 +518,8 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
       if (pickedFile != null) {
         setState(() {
           path = File(pickedFile.path).path;
+          print(path);
+          CommonSharedPreferences.setNewProfileImg(path);
         });
       } else {
         print('No image selected.');
@@ -515,38 +528,39 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   }
 
   updateProfile() async {
-    processingDialog(PLEASE_WAIT_WHILE_UPDATING_PROFILE);
-    // Response response;
-    // Dio dio = new Dio();
+    processingDialog(
+        AppLocalizations.of(context)!.please_wait_while_updating_profile);
+    Response response;
+    Dio dio = new Dio();
+    print('path: $path');
+    FormData formData = path.isEmpty
+        ? FormData.fromMap({
+            "user_id": id,
+            "name": name,
+            "email": emailAddress,
+            "password": password,
+            "phone": phoneNumber,
+          })
+        : FormData.fromMap({
+            "user_id": id,
+            "name": name,
+            "email": emailAddress,
+            "password": password,
+            "phone": phoneNumber,
+            "image": await MultipartFile.fromFile(path, filename: "upload.jpg"),
+          });
+//update to server
 
-    print(emailAddress);
-    print(id.toString());
+    response = await dio.post(SERVER_ADDRESS + "/api/editprofile",
+        data: formData, onSendProgress: (count, total) {
+      print('uploading data: ${count * 100 ~/ total}%');
+    }, options: Options(contentType: 'multipart/form-data'));
 
-    // FormData formData = path.isEmpty
-    //     ? FormData.fromMap({
-    //         "user_id": id.toString(),
-    //         "name": name,
-    //         "email": emailAddress,
-    //         "password": password,
-    //         "phone": phoneNumber,
-    //       })
-    //     : FormData.fromMap({
-    //         "user_id": id.toString(),
-    //         "name": name,
-    //         "email": emailAddress,
-    //         "password": password,
-    //         "phone": phoneNumber,
-    //         "image": await MultipartFile.fromFile(path, filename: "upload.jpg"),
-    //       });
+    print(response.realUri);
 
-    // response =
-    //     await dio.post(SERVER_ADDRESS + "/api/editprofile", data: formData);
-
-    // print(response.realUri);
-
-    // if (response.statusCode == 200 && response.data['status'] == 1) {
-    //   print(response.toString());
-
+    if (response.statusCode == 200 && response.data['status'] == 1) {
+      print(response.toString());
+      //save data to local
       await SharedPreferences.getInstance().then((value) {
         value.setString("name", name);
         value.setString("email", emailAddress);
@@ -554,11 +568,18 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
         value.setString("profile_pic", imageUrl);
         value.setString("password", password);
       });
+      //save data to database
+      CommonFirebaseDatabase.updateUserProfileToDatabase(Map.from({
+        "id": id,
+        "name": name,
+        "usertype": CommonSharedPreferences.getUserType(),
+        "profile_pic": "imageUrl"
+      }));
 
       Navigator.pop(context);
       Navigator.pop(context, true);
-    } 
-  
+    }
+  }
 
   errorDialog(message) {
     return showDialog(
@@ -692,8 +713,9 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                           child: Text(
                             CANCEL,
                             style: TextStyle(
-                              color: WHITE,
-                                fontWeight: FontWeight.w700, fontSize: 17),
+                                color: WHITE,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 17),
                           ),
                         ),
                       ),

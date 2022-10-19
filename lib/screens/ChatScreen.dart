@@ -12,6 +12,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_uploader/flutter_uploader.dart';
+import 'package:http/http.dart';
 import 'package:singleclinic/chatModule/MyPhotoViewer.dart';
 import 'package:singleclinic/chatModule/MyVideoPlayer.dart';
 import 'package:singleclinic/chatModule/MyVideoThumbnail.dart';
@@ -20,6 +21,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:singleclinic/modals/DoctorDetails.dart';
+import 'package:singleclinic/utils/shared_preferences_utils.dart';
 import 'package:string_validator/string_validator.dart';
 import 'package:toast/toast.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -29,11 +32,11 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:http/http.dart' as http;
 
 class ChatScreen extends StatefulWidget {
-  final String userName;
-  final String uid;
+  final String doctorName;
+  final String doctorUid;
   final String userProfile;
 
-  ChatScreen(this.userName, this.uid, {this.userProfile = ""});
+  ChatScreen(this.doctorName, this.doctorUid, {this.userProfile = ""});
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -72,6 +75,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   double uploadingProgress = 0.0;
   Uint8List? fileThumbnail;
   String myProfilePicture = "";
+  String myNewProfilePicture = "";
   bool isFirstMessage = false;
   List<String> monthsList = [
     'January',
@@ -98,7 +102,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   Map<String, UploadItem> _tasks = {};
   var ds;
   bool isTyping = false;
-  String imageLink = "";
+
   Timer timer = Timer(Duration(seconds: 1), () {});
   FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
   String token = "";
@@ -113,16 +117,19 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   bool showLoading = true;
   String? currentTime;
 
+  DoctorDetail? doctorDetail;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     updateServerTime();
     getCurrentTime();
-    loadUserProfile();
-    doesSendNotification(widget.uid, false);
-    print(widget.uid);
+    loadDoctorProfile();
+    doesSendNotification(widget.doctorUid, false);
+    print(widget.doctorUid);
     getMyUid();
+    getMyProfilePic();
     _lvScrollCtrl.addListener(() {
       if (_lvScrollCtrl.position.maxScrollExtent ==
           _lvScrollCtrl.position.pixels) {
@@ -202,27 +209,27 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         .toString();
   }
 
-  loadUserProfile() async {
-    await FirebaseDatabase.instance
-        .ref()
-        .child(widget.uid.toString())
-        .once()
-        .then((value) {
-      print("loading " + widget.uid.toString());
-      setState(() {
-        imageLink = SERVER_ADDRESS +
-            "/public/upload/" +
-            value.snapshot.child("profile").value.toString();
-        print("loaduserprofile" +
-            SERVER_ADDRESS +
-            "/public/upload/" +
-            value.snapshot.child("profile").value.toString());
-      });
-    }).catchError((e) {});
+  loadDoctorProfile() async {
+    // await FirebaseDatabase.instance
+    //     .ref()
+    //     .child(widget.doctorUid.toString())
+    //     .once()
+    //     .then((value) {
+    //   print("loading " + widget.doctorUid.toString());
+    //   setState(() {
+    //     imageLink = SERVER_ADDRESS +
+    //         "/public/upload/" +
+    //         value.snapshot.child("profile").value.toString();
+    //     print("loadDoctorImageProfile" +
+    //         SERVER_ADDRESS +
+    //         "/public/upload/" +
+    //         value.snapshot.child("profile").value.toString());
+    //   });
+    // }).catchError((e) {});
 
     await FirebaseDatabase.instance
         .ref()
-        .child(widget.uid)
+        .child(widget.doctorUid)
         .child("TokenList")
         .once()
         .then((value) {
@@ -236,7 +243,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         });
       }
     });
-    print("Test " + widget.uid.toString());
+    print("Test " + widget.doctorUid.toString());
     print("Test " + myUid.toString());
 
     await FirebaseDatabase.instance.ref().child(myUid!).once().then((value) {
@@ -251,7 +258,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         .ref()
         .child(myUid!)
         .child("chatlist")
-        .child(widget.uid)
+        .child(widget.doctorUid)
         .once()
         .then((value) {
       print("----------> " + value.snapshot.value.toString());
@@ -298,7 +305,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         DatabaseReference dbRef = FirebaseDatabase.instance
             .ref(myUid!)
             .child("chatlist")
-            .child(widget.uid);
+            .child(widget.doctorUid);
 
         await dbRef.set({
           "time": timeNow,
@@ -314,7 +321,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
         DatabaseReference dbRef2 = FirebaseDatabase.instance
             .ref()
-            .child(widget.uid)
+            .child(widget.doctorUid)
             .child("chatlist")
             .child(myUid!);
 
@@ -341,7 +348,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             .ref()
             .child(myUid!)
             .child("chatlist")
-            .child(widget.uid);
+            .child(widget.doctorUid);
 
         await dbRef.update({
           "time": timeNow,
@@ -356,7 +363,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
         DatabaseReference dbRef2 = FirebaseDatabase.instance
             .ref()
-            .child(widget.uid)
+            .child(widget.doctorUid)
             .child("chatlist")
             .child(myUid!);
 
@@ -385,24 +392,22 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
   }
 
   getMyUid() async {
-    print("\n\n\n\n\n\n${widget.uid}\n\n\n\n\n\n");
-
     await SharedPreferences.getInstance().then((value) {
       setState(() {
         myUid = value.getString("uid");
-        myProfilePicture = value.getString("profile_pic")!;
       });
     });
-    if (widget.uid.compareTo(myUid!) < 0) {
+    //set chanelID
+    if (widget.doctorUid.compareTo(myUid!) < 0) {
       setState(() {
-        channelId = widget.uid + myUid!;
+        channelId = widget.doctorUid + myUid!;
       });
     } else {
       setState(() {
-        channelId = (myUid! + widget.uid);
+        channelId = (myUid! + widget.doctorUid);
       });
     }
-    print("channelId : " + channelId! + "   $myUid" + "   ${widget.uid}");
+    print("channelId : " + channelId! + "   $myUid" + "   ${widget.doctorUid}");
 
     markAsSeen();
   }
@@ -421,9 +426,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     });
   }
 
+//get doctor presence
   getUserPreference() {
-    ds =
-        databaseReference2.child(widget.uid.toString()).onValue.listen((event) {
+    ds = databaseReference2
+        .child(widget.doctorUid.toString())
+        .onValue
+        .listen((event) {
       setState(() {
         if (event.snapshot.value != null) {
           if (event.snapshot.child('presence').value != null) {
@@ -433,7 +441,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
               print(
                   "last seen ${event.snapshot.child('last_seen').value.toString()}");
               userStatus =
-                  "last seen ${DateTime.parse(event.snapshot.child('last_seen').value.toString() + 'Z').toLocal().toString().substring(0, 19)}";
+                  "last seen ${DateTime.parse(event.snapshot.child('last_seen').value.toString()).toLocal().toString().substring(0, 19)}";
             }
           }
         }
@@ -443,7 +451,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     databaseReference3
         .child(myUid.toString())
         .child("chatlist")
-        .child(widget.uid)
+        .child(widget.doctorUid)
         .child("typing")
         .onValue
         .listen((event) {
@@ -477,12 +485,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   void markAsTyping() {
     DatabaseReference db = FirebaseDatabase.instance.ref();
-    db.child(widget.uid).child("chatlist").child(myUid!).update(
+    db.child(widget.doctorUid).child("chatlist").child(myUid!).update(
       {"typing": 1},
     );
 
     db
-        .child(widget.uid)
+        .child(widget.doctorUid)
         .child("chatlist")
         .child(myUid!)
         .child("typing")
@@ -491,7 +499,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       markTypingAsZerotimer.cancel();
       if (event.snapshot.value == 1) {
         markTypingAsZerotimer = Timer(Duration(seconds: 1), () {
-          db.child(widget.uid).child("chatlist").child(myUid!).update(
+          db.child(widget.doctorUid).child("chatlist").child(myUid!).update(
             {"typing": 0},
           );
         });
@@ -505,7 +513,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     ds.cancel();
     seenRefListner.cancel();
     checkSeenRefListner.cancel();
-    doesSendNotification(widget.uid, true);
+    doesSendNotification(widget.doctorUid, true);
     print("On dispose called");
     WidgetsBinding.instance.removeObserver(this);
   }
@@ -517,12 +525,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
       Toast.show("resumed");
       getUserPreference();
       checkSeenStatus();
-      doesSendNotification(widget.uid, true);
+      doesSendNotification(widget.doctorUid, true);
     } else {
       ds.cancel();
       seenRefListner.cancel();
       checkSeenRefListner.cancel();
-      doesSendNotification(widget.uid, false);
+      doesSendNotification(widget.doctorUid, false);
     }
   }
 
@@ -542,13 +550,13 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   header(
-                      widget.userName,
+                      widget.doctorName,
                       showLoading
                           ? "Loading..."
                           : isTyping
                               ? "Typing..."
                               : userStatus,
-                      imageLink),
+                      widget.userProfile),
                   SizedBox(
                     height: 5,
                   ),
@@ -777,7 +785,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                                             .toLocal()
                                                             .minute
                                                             .toString(),
-                                                image: imageLink,
+                                                image: myNewProfilePicture.isEmpty? myProfilePicture : myNewProfilePicture,
                                                 snapshot: snapshot,
                                                 index: index)
                                             : messageCard(
@@ -791,7 +799,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                                             .minute
                                                             .toString()
                                                     : DateTime.parse(snapshot.data!.docs[index]['time'] + "Z").toLocal().hour.toString() + ":" + "0" + DateTime.parse(snapshot.data!.docs[index]['time'] + "Z").toLocal().minute.toString(),
-                                                image: imageLink,
+                                                image: widget.userProfile,
                                                 snapshot: snapshot,
                                                 index: index),
                                       ],
@@ -874,7 +882,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(8),
                                     child: CachedNetworkImage(
-                                      imageUrl: imageLink,
+                                      imageUrl: widget.userProfile,
                                       fit: BoxFit.cover,
                                       placeholder: (context, string) =>
                                           Container(
@@ -1023,26 +1031,33 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             ),
             ClipRRect(
               borderRadius: BorderRadius.circular(25),
-              child: CachedNetworkImage(
-                height: 35,
-                width: 35,
-                fit: BoxFit.cover,
-                imageUrl: myProfilePicture,
-                progressIndicatorBuilder: (context, url, downloadProgress) =>
-                    Container(
+              child: myNewProfilePicture.isEmpty
+                  ? CachedNetworkImage(
+                      height: 35,
+                      width: 35,
+                      fit: BoxFit.cover,
+                      imageUrl: image!,
+                      progressIndicatorBuilder:
+                          (context, url, downloadProgress) => Container(
+                              child: Center(
+                                  child: Icon(Icons.account_circle,
+                                      color: LIGHT_GREY_TEXT, size: 35))),
+                      errorWidget: (context, url, error) => Container(
                         child: Center(
-                            child: Icon(Icons.account_circle,
-                                color: LIGHT_GREY_TEXT, size: 35))),
-                errorWidget: (context, url, error) => Container(
-                  child: Center(
-                    child: Icon(
-                      Icons.account_circle,
-                      color: LIGHT_GREY_TEXT,
-                      size: 35,
+                          child: Icon(
+                            Icons.account_circle,
+                            color: LIGHT_GREY_TEXT,
+                            size: 35,
+                          ),
+                        ),
+                      ),
+                    )
+                  : Image.file(
+                      File(myNewProfilePicture),
+                      height: 35,
+                      width: 35,
+                      fit: BoxFit.cover,
                     ),
-                  ),
-                ),
-              ),
             ),
             SizedBox(
               width: 15,
@@ -1203,7 +1218,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           .ref()
           .child(myUid!)
           .child("chatlist")
-          .child(widget.uid);
+          .child(widget.doctorUid);
 
       await dbRef.set({
         "time": timeNow,
@@ -1216,7 +1231,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
       DatabaseReference dbRef2 = FirebaseDatabase.instance
           .ref()
-          .child(widget.uid)
+          .child(widget.doctorUid)
           .child("chatlist")
           .child(myUid!);
 
@@ -1242,7 +1257,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           .ref()
           .child(myUid!)
           .child("chatlist")
-          .child(widget.uid);
+          .child(widget.doctorUid);
 
       await dbRef.update({
         "time": timeNow,
@@ -1254,7 +1269,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
       DatabaseReference dbRef2 = FirebaseDatabase.instance
           .ref()
-          .child(widget.uid)
+          .child(widget.doctorUid)
           .child("chatlist")
           .child(myUid!);
 
@@ -1350,7 +1365,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             .ref()
             .child(myUid!)
             .child("chatlist")
-            .child(widget.uid);
+            .child(widget.doctorUid);
 
         await dbRef.set({
           "time": timeNow,
@@ -1363,7 +1378,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
         DatabaseReference dbRef2 = FirebaseDatabase.instance
             .ref()
-            .child(widget.uid)
+            .child(widget.doctorUid)
             .child("chatlist")
             .child(myUid!);
 
@@ -1387,7 +1402,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             .ref()
             .child(myUid!)
             .child("chatlist")
-            .child(widget.uid);
+            .child(widget.doctorUid);
 
         await dbRef.update({
           "time": timeNow,
@@ -1399,7 +1414,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
         DatabaseReference dbRef2 = FirebaseDatabase.instance
             .ref()
-            .child(widget.uid)
+            .child(widget.doctorUid)
             .child("chatlist")
             .child(myUid!);
 
@@ -1429,7 +1444,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         .ref()
         .child(myUid.toString())
         .child('chatlist')
-        .child(widget.uid.toString())
+        .child(widget.doctorUid.toString())
         .child("messageCount");
     seenRefListner = seenRef!.onValue.listen((event) {
       seenRef!.set(0);
@@ -1439,7 +1454,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
   checkSeenStatus() async {
     checkSeenRefListner = FirebaseDatabase.instance
-        .ref(widget.uid)
+        .ref(widget.doctorUid)
         .child('chatlist')
         .child(myUid.toString())
         .child("messageCount")
@@ -2011,7 +2026,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         .ref()
         .child(myUid!)
         .child('chatlist')
-        .child(widget.uid)
+        .child(widget.doctorUid)
         .update({
       "status": 1,
     }).then((value) {
@@ -2133,11 +2148,11 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           .ref()
           .child(myUid!)
           .child("chatlist")
-          .child(widget.uid)
+          .child(widget.doctorUid)
           .remove();
       await FirebaseDatabase.instance
           .ref()
-          .child(widget.uid)
+          .child(widget.doctorUid)
           .child("chatlist")
           .child(myUid!)
           .remove();
@@ -2147,7 +2162,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
           .ref()
           .child(myUid!)
           .child('chatlist')
-          .child(widget.uid);
+          .child(widget.doctorUid);
       await documentReference.update({
         "time": snapshot.data!.docs[1]['time'].toDate().toUtc().toString(),
         "last_msg": snapshot.data!.docs[1]['msg'],
@@ -2156,7 +2171,7 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
 
       DatabaseReference documentReference2 = FirebaseDatabase.instance
           .ref()
-          .child(widget.uid)
+          .child(widget.doctorUid)
           .child('chatlist')
           .child(myUid!);
       await documentReference2.update({
@@ -2294,6 +2309,14 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
         Completer<Map<String, dynamic>>();
 
     return completer.future;
+  }
+
+  void getMyProfilePic() {
+    if (CommonSharedPreferences.getNewProfileImg() != null)
+      myNewProfilePicture = CommonSharedPreferences.getNewProfileImg()!;
+    if (CommonSharedPreferences.getProfileImg() != null)
+      myProfilePicture = CommonSharedPreferences.getProfileImg()!;
+    print(myProfilePicture);
   }
 }
 

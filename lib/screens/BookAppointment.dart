@@ -12,13 +12,11 @@ import 'package:singleclinic/modals/FacilitiesClass.dart';
 import 'package:singleclinic/screens/DoctorDetail.dart';
 import 'package:singleclinic/screens/DoctorList.dart';
 import 'package:singleclinic/main.dart';
+import 'package:singleclinic/utils/shared_preferences_utils.dart';
 
 class BookAppointment extends StatefulWidget {
   @override
   _BookAppointmentState createState() => _BookAppointmentState();
-  final bool? isBookByDate;
-
-  const BookAppointment({this.isBookByDate});
 }
 
 class _BookAppointmentState extends State<BookAppointment> {
@@ -58,37 +56,34 @@ class _BookAppointmentState extends State<BookAppointment> {
     _getDepartmentsList();
     _getFacilityList();
 
-    SharedPreferences.getInstance().then((value) {
-      userId = value.getInt("id");
-      nameController = TextEditingController(text: value.getString("name"));
-      phoneController =
-          TextEditingController(text: value.getString("phone_no"));
-      isBookByDate = (value.getBool("isBookByDate") ?? false);
-      if (value.getString("selectedDate") != null)
-        selectedDate = DateTime.parse(value.getString("selectedDate")!);
-      else
-        selectedDate = getInitialDate();
-
-      facilityValue = value.getString("facilityValue");
-
-      departmentValue = value.getString('departmentValue');
-      departmentId = value.getInt('departmentId');
-
-      doctorValue = value.getString('doctorValue');
-      doctorId = value.getInt('doctorId');
-
-      from = value.getString('from');
-      to = value.getString('to');
-      if (from != null && to != null) formatedTime = from! + ' - ' + to!;
+    userId = CommonSharedPreferences.getUserId();
+    nameController =
+        TextEditingController(text: CommonSharedPreferences.getName());
+    phoneController =
+        TextEditingController(text: CommonSharedPreferences.getPhoneNumber());
+    isBookByDate = (CommonSharedPreferences.getIsBookByDate() ?? false);
+    if (CommonSharedPreferences.getSelectedDate() != null)
+      selectedDate = DateTime.parse(CommonSharedPreferences.getSelectedDate()!);
+    else
+      selectedDate = getInitialDate();
+    facilityValue = CommonSharedPreferences.getFacilityValue();
+    departmentValue = CommonSharedPreferences.getDepartmentValue();
+    departmentId = CommonSharedPreferences.getDepartmentId();
+    doctorValue = CommonSharedPreferences.getDoctorValue();
+    doctorId = CommonSharedPreferences.getDoctorId();
+    from = CommonSharedPreferences.getFrom();
+    to = CommonSharedPreferences.getTo();
+    if (from != null && to != null) {
+      formatedTime = from! + ' - ' + to!;
       fromHour = int.parse(from!.substring(0, 2));
       fromMinute = int.parse(from!.substring(3, 5));
-      if (value.getInt('day') != null) pickedDay = value.getInt('day')! - 1;
-
-      serviceId = value.getInt('serviceId');
-      serviceValue = value.getString('serviceValue');
-      if (departmentId != null) fetchDoctorsAndServices(departmentId!);
-      message = value.getString('message');
-    });
+    }
+    if (CommonSharedPreferences.getDay() != null)
+      pickedDay = CommonSharedPreferences.getDay()! - 1;
+    serviceId = CommonSharedPreferences.getServiceId();
+    serviceValue = CommonSharedPreferences.getServiceValue();
+    if (departmentId != null) fetchDoctorsAndServices(departmentId!);
+    message = CommonSharedPreferences.getMessage();
   }
 
   @override
@@ -125,8 +120,8 @@ class _BookAppointmentState extends State<BookAppointment> {
                   ),
                   constraints: BoxConstraints(maxWidth: 30, minWidth: 10),
                   padding: EdgeInsets.zero,
-                  onPressed: () async {
-                    await _removeSharedAppointmentAttributes();
+                  onPressed: () {
+                    CommonSharedPreferences.clearBookAppointmentInfo();
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
@@ -398,7 +393,14 @@ class _BookAppointmentState extends State<BookAppointment> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(selectedDate.toString().substring(0, 10),
+                                  Text(
+                                      selectedDate == null
+                                          ? getInitialDate()
+                                              .toString()
+                                              .substring(0, 10)
+                                          : selectedDate
+                                              .toString()
+                                              .substring(0, 10),
                                       style: (isBookByDate == false &&
                                               doctorValue == null)
                                           ? Theme.of(context)
@@ -520,7 +522,9 @@ class _BookAppointmentState extends State<BookAppointment> {
                   DropdownButton<String>(
                     isExpanded: true,
                     hint: Text(
-                      isLoadingDoctorAndServices ? LOADING : SELECT_SERVICES,
+                      isLoadingDoctorAndServices
+                          ? AppLocalizations.of(context)!.loading
+                          : AppLocalizations.of(context)!.select_services,
                       style: Theme.of(context)
                           .textTheme
                           .apply(bodyColor: LIGHT_GREY_TEXT)
@@ -682,6 +686,8 @@ class _BookAppointmentState extends State<BookAppointment> {
                             departmentId = departmentsList!.data![index].id;
                             print(departmentId);
                           });
+                          SharedPreferences.getInstance().then((value) =>
+                              value.setInt("departmentId", departmentId!));
                           await fetchDoctorsAndServices(
                               departmentsList!.data![index].id!);
                         },
@@ -695,9 +701,13 @@ class _BookAppointmentState extends State<BookAppointment> {
                     ),
                     onChanged: (val) async {
                       print(val);
-
                       setState(() {
                         departmentValue = val.toString();
+                        doctorValue = null;
+                        doctorId = null;
+                        serviceId = null;
+                        serviceValue = null;
+                        formatedTime = "";
                       });
                       await SharedPreferences.getInstance().then((value) =>
                           value.setString('departmentValue', departmentValue!));
@@ -770,12 +780,11 @@ class _BookAppointmentState extends State<BookAppointment> {
               ),
               onChanged: (val) {
                 print(val);
-                setState(() async {
+                setState(() {
                   facilityValue = val.toString();
                   print('facilityValue ' + facilityValue.toString());
-                  await SharedPreferences.getInstance().then((value) =>
-                      value.setString('facilityValue', facilityValue!));
                 });
+                CommonSharedPreferences.setFacilityValue(facilityValue!);
               },
             )
           ]))
@@ -828,15 +837,18 @@ class _BookAppointmentState extends State<BookAppointment> {
           return isBookByDate == true ? true : getDayEnable(day);
         });
 
-    if (picked != null)
-      await SharedPreferences.getInstance().then((value) {
-        value.setString("selectedDate", selectedDate.toString());
-      });
-    setState(() {
-      selectedDate = picked;
+    if (picked != null) {
+      CommonSharedPreferences.setSelectedDate(selectedDate!);
 
-      print(selectedDate);
-    });
+      setState(() {
+        selectedDate = picked;
+        doctorValue = null;
+        doctorId = null;
+        serviceId = null;
+        serviceValue = null;
+        formatedTime = "";
+      });
+    }
   }
 
   Future<void> _selectTime(BuildContext context) async {
@@ -884,9 +896,9 @@ class _BookAppointmentState extends State<BookAppointment> {
     }
   }
 
-  fetchDoctorsAndServices(int id) async {
+  fetchDoctorsAndServices(int departmentId) async {
     final response = await get(Uri.parse(
-        "$SERVER_ADDRESS/api/getdoctorandservicebydeptid?department_id=$id"));
+        "$SERVER_ADDRESS/api/getdoctorandservicebydeptid?department_id=$departmentId"));
     final jsonResponse = jsonDecode(response.body);
 
     if (response.statusCode == 200 && jsonResponse['status'] == 1) {
@@ -903,10 +915,12 @@ class _BookAppointmentState extends State<BookAppointment> {
         serviceId == null ||
         doctorId == null ||
         facilityValue == null) {
-      messageDialog("Error", ENTER_ALL_FIELDS_TO_MAKE_APPOINTMENT);
+      messageDialog(AppLocalizations.of(context)!.error,
+          AppLocalizations.of(context)!.enter_all_fields_to_make_appointment);
     } else {
       if (!isValidTime()) {
-        messageDialog("Error", AppLocalizations.of(context)!.valid_time_choose);
+        messageDialog(AppLocalizations.of(context)!.error,
+            AppLocalizations.of(context)!.valid_time_choose);
       } else {
         dialog();
 
@@ -953,34 +967,20 @@ class _BookAppointmentState extends State<BookAppointment> {
         print(jsonResponse);
         if (response.statusCode == 200 && jsonResponse['status'] == 1) {
           print("Success");
-          await _removeSharedAppointmentAttributes();
+          CommonSharedPreferences.clearBookAppointmentInfo();
           setState(() {
             Navigator.pop(context);
-            messageDialog("Successful", jsonResponse['msg']);
+            messageDialog(AppLocalizations.of(context)!.successful,
+                AppLocalizations.of(context)!.book_appointment_successful);
             isAppointmentMadeSuccessfully = true;
           });
         } else {
           Navigator.pop(context);
-          messageDialog("Error", jsonResponse['msg']);
+          messageDialog(AppLocalizations.of(context)!.error,
+              AppLocalizations.of(context)!.book_appointment_failled);
         }
       }
     }
-  }
-
-  Future<void> _removeSharedAppointmentAttributes() async {
-    await SharedPreferences.getInstance().then((value) {
-      value.remove("selectedDate");
-      value.remove("facilityValue");
-      value.remove('departmentValue');
-      value.remove('departmentId');
-      value.remove('doctorValue');
-      value.remove('doctorId');
-      value.remove('from');
-      value.remove('to');
-      value.remove('serviceId');
-      value.remove('serviceValue');
-      value.remove('message');
-    });
   }
 
   dialog() {
@@ -1070,30 +1070,11 @@ class _BookAppointmentState extends State<BookAppointment> {
       value.setString("selectedDate", selectedDate.toString());
     });
     print(selectedDate);
-    final result = await Navigator.pushReplacement(
+    Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => DoctorList(id),
         ));
-    print('result : $result');
-    if (!mounted) {
-      print('mounted = false');
-      return;
-    }
-    if (result != null) {
-      setState(() {
-        formatedTime = result['from'] + ' - ' + result['to'];
-        from = result['from'];
-        to = result['to'];
-        doctorId = result['doctorId'];
-        doctorValue = result['name'];
-        fromHour = int.parse(from!.substring(0, 2));
-        facilityValue = result['facilityName'];
-        fromMinute = int.parse(from!.substring(3, 5));
-        print('from hour: $fromHour');
-        print('from minute: $fromMinute');
-      });
-    }
   }
 
   bool isValidTime() {
@@ -1113,7 +1094,7 @@ class _BookAppointmentState extends State<BookAppointment> {
 
   bool getDayEnable(DateTime day) {
     print("----------function getDayEnable");
-
+    // if (pickedDay == null) return true;
     if (day.weekday == pickedDay) {
       print(day);
       return true;
@@ -1123,7 +1104,7 @@ class _BookAppointmentState extends State<BookAppointment> {
 
   getInitialDate() {
     print("--------------function getInitialDate");
-    if (isBookByDate!)
+    if (isBookByDate! || pickedDay == null)
       return DateTime.now();
     else {
       var temp = DateTime.now();

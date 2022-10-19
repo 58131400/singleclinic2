@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:firebase_database/firebase_database.dart';
@@ -20,7 +22,7 @@ class _ChatListState extends State<ChatList> {
   List<ChatListDetails> chatListDetails = [];
   List<ChatListDetails> chatListSearch = [];
   List<ChatListDetails> chatListDetailsPA = [];
-  var ds;
+  StreamSubscription<DatabaseEvent>? ds;
   String? uid;
   String keyword = "";
   bool isSearchClicked = false;
@@ -42,7 +44,8 @@ class _ChatListState extends State<ChatList> {
   @override
   void dispose() {
     super.dispose();
-    if (ds != null) ds.cancel();
+    if (ds != null) ds!.cancel();
+    ;
   }
 
   @override
@@ -101,33 +104,34 @@ class _ChatListState extends State<ChatList> {
                                 itemBuilder: (context, index) {
                                   return StreamBuilder(
                                     stream: FirebaseDatabase.instance
-                                        .ref()
-                                        .child(chatListDetails[index]
+                                        .ref(chatListDetails[index]
                                             .userUid
                                             .toString())
                                         .onValue,
                                     builder: (context, AsyncSnapshot snapshot) {
                                       if (snapshot.hasData) {
-                                        print("new stream" +
-                                            snapshot.data.snapshot.value['name']
-                                                .toString());
                                         return messageCard(
                                             isNewMessage: chatListDetails[index]
                                                         .messageCount >
                                                     0
                                                 ? true
                                                 : false,
-                                            name: snapshot
-                                                .data.snapshot.value['name']
-                                                .toString(),
+                                            name:
+                                                (snapshot.data as DatabaseEvent)
+                                                    .snapshot
+                                                    .child('name')
+                                                    .value
+                                                    .toString(),
                                             message:
                                                 chatListDetails[index].message,
                                             count: chatListDetails[index]
                                                 .messageCount,
                                             image: SERVER_ADDRESS +
                                                 "/public/upload/" +
-                                                snapshot.data.snapshot
-                                                    .value['profile']
+                                                (snapshot.data as DatabaseEvent)
+                                                    .snapshot
+                                                    .child('profile')
+                                                    .value
                                                     .toString()
                                                     .replaceAll(
                                                         SERVER_ADDRESS +
@@ -235,7 +239,8 @@ class _ChatListState extends State<ChatList> {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => ChatScreen(name, uid!)));
+                            builder: (context) =>
+                                ChatScreen(name, uid!, userProfile: image!)));
                   },
                   child: Row(
                     children: [
@@ -364,7 +369,11 @@ class _ChatListState extends State<ChatList> {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => ChatScreen(name!, uid!)));
+                        builder: (context) => ChatScreen(
+                              name!,
+                              uid!,
+                              userProfile: image!,
+                            )));
               },
               child: Row(
                 children: [
@@ -413,7 +422,7 @@ class _ChatListState extends State<ChatList> {
                               return Container();
                             } else {
                               return snapshot.data != null
-                                  ? (snapshot.hasData)
+                                  ? (snapshot.hasData && (snapshot.data as DatabaseEvent).snapshot.value == true )
                                       ? Container(
                                           height: 50,
                                           width: 50,
@@ -526,6 +535,7 @@ class _ChatListState extends State<ChatList> {
   }
 
   typeToWidget(int type, String msg, int count) {
+    //type == 1: photo, 2: video, 0: text
     if (type == 1) {
       return Row(
         children: [

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,7 +18,8 @@ import 'package:singleclinic/screens/SubcriptionList.dart';
 import 'package:singleclinic/screens/SubscriptionPlansScreen.dart';
 import 'package:singleclinic/screens/TermAndConditions.dart';
 import 'package:singleclinic/screens/UpdateProfileScreen.dart';
-import '../main.dart';
+import 'package:singleclinic/utils/shared_preferences_utils.dart';
+import 'package:singleclinic/main.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -37,6 +39,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   void initState() {
+    if (CommonSharedPreferences.getNewProfileImg() != null)
+      path = CommonSharedPreferences.getNewProfileImg()!;
+    if (CommonSharedPreferences.getProfileImg() != null)
+      imageUrl = CommonSharedPreferences.getProfileImg()!;
+    print("----init setting screen\n");
+    print("path: $path");
+    print("image url: $imageUrl");
     super.initState();
   }
 
@@ -121,7 +130,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     var value = await SharedPreferences.getInstance();
 
     print('load info');
-    imageUrl = value.getString("profile_pic");
+    // imageUrl = CommonSharedPreferences.getProfileImg();
     print('imageUrl : $imageUrl');
     name = value.getString("name");
     email = value.getString("email");
@@ -187,7 +196,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30)),
+            bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20)),
         color: Colors.white,
       ),
       child: InkWell(
@@ -197,7 +206,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Stack(
               children: [
                 ClipRRect(
-                  //borderRadius: BorderRadius.circular(20),
                   child: Container(
                     height: 110,
                     width: 110,
@@ -209,28 +217,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ))
                         : InkWell(
                             borderRadius: BorderRadius.circular(20),
-                            child: CachedNetworkImage(
-                              fit: BoxFit.cover,
-                              imageUrl: imageUrl!,
-                              progressIndicatorBuilder:
-                                  (context, url, downloadProgress) => Container(
+                            child: path.isEmpty
+                                ? CachedNetworkImage(
+                                    fit: BoxFit.cover,
+                                    imageUrl: imageUrl!,
+                                    progressIndicatorBuilder:
+                                        (context, url, downloadProgress) =>
+                                            Container(
+                                                child: Center(
+                                                    child: Icon(
+                                      Icons.account_circle,
+                                      size: 110,
+                                      color: LIGHT_GREY_TEXT,
+                                    ))),
+                                    errorWidget: (context, url, error) =>
+                                        Container(
                                       child: Center(
-                                          child: Icon(
-                                Icons.account_circle,
-                                size: 110,
-                                color: LIGHT_GREY_TEXT,
-                              ))),
-                              errorWidget: (context, url, error) => Container(
-                                child: Center(
-                                  child: Icon(
-                                    Icons.account_circle,
-                                    size: 110,
-                                    color: LIGHT_GREY_TEXT,
+                                        child: Icon(
+                                          Icons.account_circle,
+                                          size: 110,
+                                          color: LIGHT_GREY_TEXT,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : Image.file(
+                                    File(CommonSharedPreferences
+                                        .getNewProfileImg()!),
+                                    fit: BoxFit.cover,
                                   ),
-                                ),
-                              ),
-                            ),
                           ),
+                    // StreamBuilder(
+                    //   builder: builder)
                   ),
                 ),
                 Container(
@@ -249,11 +267,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               MaterialPageRoute(
                                   builder: (context) => UpdateProfileScreen()));
                           if (check) {
-                            await SharedPreferences.getInstance().then((value) {
-                              setState(() {
-                                imageUrl = value.getString("profile_pic");
-                                name = value.getString("name");
-                              });
+                            setState(() {
+                              imageUrl =
+                                  CommonSharedPreferences.getProfileImg();
+                              print('new imageUrl: $imageUrl');
+                              name = CommonSharedPreferences.getName();
+                              if (CommonSharedPreferences.getNewProfileImg() !=
+                                  null)
+                                path =
+                                    CommonSharedPreferences.getNewProfileImg()!;
                             });
                           }
                         },
@@ -301,8 +323,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ElevatedButton(
                                   style: ElevatedButton.styleFrom(
                                     shadowColor: Colors.white,
+                                    backgroundColor: NAVY_BLUE,
                                     elevation: 10,
-                                    primary: NAVY_BLUE,
                                     shape: RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(20)),
@@ -618,6 +640,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (pickedFile != null) {
         setState(() {
           path = File(pickedFile.path).path;
+          CommonSharedPreferences.setNewProfileImg(path);
         });
       } else {
         print('No image selected.');
@@ -651,6 +674,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             actions: [
               TextButton(
                 onPressed: () async {
+                  await updateUserPresence();
+
                   await SharedPreferences.getInstance().then((value) {
                     value.clear();
                   });
@@ -670,6 +695,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
           );
         });
+  }
+
+  updateUserPresence() async {
+    Map<String, dynamic> presenceStatusFalse = {
+      'presence': false,
+      'last_seen': DateTime.now().toUtc().toString(),
+    };
+
+    FirebaseDatabase.instance
+        .ref()
+        .child(CommonSharedPreferences.getUserId().toString())
+        .update(presenceStatusFalse);
   }
 }
 
